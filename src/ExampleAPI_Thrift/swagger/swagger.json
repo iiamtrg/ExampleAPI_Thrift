@@ -22,6 +22,22 @@
                 ],
                 "description": "get all person",
                 "operationId": "PersonController.GetAll",
+                "parameters": [
+                    {
+                        "in": "query",
+                        "name": "offset",
+                        "description": "false",
+                        "type": "integer",
+                        "format": "int64"
+                    },
+                    {
+                        "in": "query",
+                        "name": "limit",
+                        "description": "false",
+                        "type": "integer",
+                        "format": "int64"
+                    }
+                ],
                 "responses": {
                     "200": {
                         "description": "",
@@ -50,6 +66,31 @@
                 "responses": {
                     "201": {
                         "description": "{string} id"
+                    }
+                }
+            }
+        },
+        "/person/team/{uid}": {
+            "get": {
+                "tags": [
+                    "person"
+                ],
+                "description": "Get persons of team",
+                "operationId": "PersonController.Get persons of team",
+                "parameters": [
+                    {
+                        "in": "path",
+                        "name": "uid",
+                        "description": "true",
+                        "type": "string"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "schema": {
+                            "$ref": "#/definitions/teams"
+                        }
                     }
                 }
             }
@@ -130,18 +171,65 @@
                 }
             }
         },
+        "/person/{uid}/team/": {
+            "post": {
+                "tags": [
+                    "person"
+                ],
+                "description": "create person's team",
+                "operationId": "PersonController.create person's team",
+                "parameters": [
+                    {
+                        "in": "path",
+                        "name": "uid",
+                        "description": "true",
+                        "type": "string"
+                    },
+                    {
+                        "in": "body",
+                        "name": "teamId",
+                        "description": "true",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "type": "string"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "{string} string"
+                    }
+                }
+            }
+        },
         "/team/": {
             "get": {
                 "tags": [
                     "team"
                 ],
-                "description": "get all teams",
+                "description": "get all person",
                 "operationId": "TeamController.GetAll",
+                "parameters": [
+                    {
+                        "in": "query",
+                        "name": "offset",
+                        "description": "false",
+                        "type": "integer",
+                        "format": "int64"
+                    },
+                    {
+                        "in": "query",
+                        "name": "limit",
+                        "description": "false",
+                        "type": "integer",
+                        "format": "int64"
+                    }
+                ],
                 "responses": {
                     "200": {
                         "description": "",
                         "schema": {
-                            "$ref": "#/definitions/teams"
+                            "$ref": "#/definitions/myGeneric.TPerson"
                         }
                     }
                 }
@@ -169,6 +257,28 @@
                 }
             }
         },
+        "/team/person/{uid}": {
+            "get": {
+                "tags": [
+                    "team"
+                ],
+                "description": "get person's team",
+                "operationId": "TeamController.get person's team",
+                "parameters": [
+                    {
+                        "in": "path",
+                        "name": "uid",
+                        "description": "true",
+                        "type": "string"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "{string} myGeneric.TTeamResult_"
+                    }
+                }
+            }
+        },
         "/team/{uid}": {
             "get": {
                 "tags": [
@@ -190,9 +300,6 @@
                         "schema": {
                             "$ref": "#/definitions/teams"
                         }
-                    },
-                    "403": {
-                        "description": "{string} uid is not int"
                     }
                 }
             },
@@ -241,6 +348,37 @@
                 "responses": {
                     "204": {
                         "description": ""
+                    }
+                }
+            }
+        },
+        "/team/{uid}/person/": {
+            "post": {
+                "tags": [
+                    "team"
+                ],
+                "description": "add person to team",
+                "operationId": "TeamController.add person to team",
+                "parameters": [
+                    {
+                        "in": "path",
+                        "name": "uid",
+                        "description": "true",
+                        "type": "string"
+                    },
+                    {
+                        "in": "body",
+                        "name": "personId",
+                        "description": "true",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "type": "string"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "{string} myGeneric.TPersonResult_"
                     }
                 }
             }

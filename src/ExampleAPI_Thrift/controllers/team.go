@@ -7,6 +7,8 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/astaxie/beego"
+	"regexp"
+	"strconv"
 	"strings"
 )
 
@@ -15,39 +17,105 @@ type TeamController struct {
 	beego.Controller
 }
 
-// @Title GetAll
-// @Description get all teams
-// @Success 200 {object} teams
-// @router / [get]
-func (this *TeamController) GetAll() {
 
-	defer this.ServeJSON()
+// @Title GetAll
+// @Description get all person
+// @Param	offset	query	int	false
+// @Param	limit	query	int false
+// @Success 200 {object} myGeneric.TPerson
+// @router / [get]
+func (t *TeamController) Get() {
+
+	defer t.ServeJSON()
 	sv := &models.TeamClient{}
-	result, err := sv.GetItemsAll()
-	if err != nil {
-		this.Ctx.ResponseWriter.WriteHeader(500)
+	off := t.GetString("offset")
+	limit := t.GetString("limit")
+	if off == "" && limit == ""{
+		result, err := sv.GetItemsAll()
+		if err != nil {
+			t.Ctx.ResponseWriter.WriteHeader(500)
+		} else {
+			t.Ctx.ResponseWriter.WriteHeader(200)
+			t.Data["json"] = result
+		}
+	} else if off != "" && limit == ""{
+		offInt, err := strconv.Atoi(off)
+		if err != nil {
+			t.Ctx.ResponseWriter.WriteHeader(400)
+			return
+		}
+		result, err := sv.GetItemsPagination(int32(offInt), 0)
+		if err != nil {
+			t.Ctx.ResponseWriter.WriteHeader(500)
+		}
+		t.Data["json"] = result
+		return
+	} else if off == "" && limit != ""{
+		limitInt, err := strconv.Atoi(limit)
+		if err != nil {
+			t.Ctx.ResponseWriter.WriteHeader(400)
+			return
+		}
+		result, err := sv.GetItemsPagination(0, int32(limitInt))
+		if err != nil {
+			t.Ctx.ResponseWriter.WriteHeader(500)
+		}
+		t.Data["json"] = result
+		return
 	} else {
-		this.Ctx.ResponseWriter.WriteHeader(200)
-		this.Data["json"] = result
+		offInt, err := strconv.Atoi(off)
+		if err != nil {
+			t.Ctx.ResponseWriter.WriteHeader(400)
+			return
+		}
+		limitInt, err := strconv.Atoi(limit)
+		if err != nil {
+			t.Ctx.ResponseWriter.WriteHeader(400)
+			return
+		}
+		result, err := sv.GetItemsPagination(int32(offInt), int32(limitInt))
+		if err != nil {
+			t.Ctx.ResponseWriter.WriteHeader(500)
+		}
+		t.Data["json"] = result
+		return
 	}
+
 }
 
 // @Title GetItem
 // @Description get team by id
 // @Param	uid 	path	string	true
 // @Success 200 {object} teams
-// @Failure 403 {string} uid is not int
 // @router /:uid [get]
-func (this *TeamController) Get() {
+func (t *TeamController) GetById() {
 
-	defer this.ServeJSON()
+	defer t.ServeJSON()
 	sv := &models.TeamClient{}
-	result, err := sv.GetItemById(this.GetString(":uid"))
+	result, err := sv.GetItemById(t.GetString(":uid"))
 	if err != nil {
-		this.Ctx.ResponseWriter.WriteHeader(404)
-		this.Data["json"] = "id is not existed"
+		t.Ctx.ResponseWriter.WriteHeader(404)
+		t.Data["json"] = "id is not existed"
 	}
-	this.Data["json"] = result
+	t.Data["json"] = result
+}
+
+// @Title get person's team
+// @Description get person's team
+// @Param uid	path	string	true
+// @Success	200 {string} myGeneric.TTeamResult_
+// @router /person/:uid [get]
+func (t *TeamController) GetPersonTeam() {
+
+	defer t.ServeJSON()
+	uid := t.GetString(":uid")
+	sv := &models.PersonClient{}
+	result, err := sv.GetPersonTeam(uid)
+	if err != nil{
+		t.Ctx.ResponseWriter.WriteHeader(404)
+		return
+	}
+	t.Data["json"] = result
 }
 
 // @Title CreateTeam
@@ -55,21 +123,53 @@ func (this *TeamController) Get() {
 // @Param body	body	myGeneric.TTeam	true
 // @Success	201 {string} id
 // @router / [post]
-func (this *TeamController) Post() {
-	defer this.ServeJSON()
+func (t *TeamController) Post() {
+	defer t.ServeJSON()
 	team := myGeneric.TTeam{}
-	err := json.Unmarshal(this.Ctx.Input.RequestBody, &team)
+	err := json.Unmarshal(t.Ctx.Input.RequestBody, &team)
 	if err != nil{
-		this.Ctx.ResponseWriter.WriteHeader(400)
-		this.Data["json"] = "data is not mapping success"
+		t.Ctx.ResponseWriter.WriteHeader(400)
+		t.Data["json"] = "data is not mapping success"
 	} else {
-		sv := &models.TeamClient{}
-		err = sv.Put(&team)
-		if err != nil {
-			this.Ctx.ResponseWriter.WriteHeader(500)
+		matched, err := regexp.Match(`^t-\d+$`, []byte(team.GetTeamId()))
+		if err != nil || !matched {
+			t.Ctx.ResponseWriter.WriteHeader(400)
+			obj := make(map[string]string,0)
+			obj["code"] = "400"
+			obj["message"] = "teamID is not valid. Pattern: t-[0-9]+"
+			t.Data["json"] = obj
+			return
 		}
-		this.Data["json"] = "create success"
+		sv := &models.TeamClient{}
+		err = sv.PutItem(&team)
+		if err != nil {
+			t.Ctx.ResponseWriter.WriteHeader(500)
+			return
+		}
+		t.Data["json"] = "create success"
 	}
+}
+
+// @Title add person to team
+// @Description add person to team
+// @Param uid	path	string	true
+// @Param personId	body	string	true
+// @Success	200 {string} myGeneric.TPersonResult_
+// @router /:uid/person/ [post]
+func (t *TeamController) PostPerson() {
+
+	defer t.ServeJSON()
+	uid := t.GetString(":uid")
+	personId := t.GetString("personId")
+	sv := models.PersonClient{}
+	err := sv.PutPersonIsTeam(personId, uid)
+	if err != nil {
+		t.Ctx.ResponseWriter.WriteHeader(400)
+		return
+	}
+	t.Ctx.ResponseWriter.WriteHeader(201)
+	t.Data["json"] = "create success"
+	return
 }
 
 // @Title UpdateTeam
@@ -78,24 +178,24 @@ func (this *TeamController) Post() {
 // @Param body	body	myGeneric.TTeam true
 // @Success 201 | 204
 // @router /:uid [put]
-func (this *TeamController) Put(){
+func (t *TeamController) Put(){
 
-	defer this.ServeJSON()
+	defer t.ServeJSON()
 	team := &myGeneric.TTeam{}
-	err := json.Unmarshal(this.Ctx.Input.RequestBody, &team)
-	if err != nil || strings.Compare(team.GetTeamId(), this.GetString(":uid")) != 0{
-		this.Ctx.ResponseWriter.WriteHeader(400)
+	err := json.Unmarshal(t.Ctx.Input.RequestBody, &team)
+	if err != nil || strings.Compare(team.GetTeamId(), t.GetString(":uid")) != 0{
+		t.Ctx.ResponseWriter.WriteHeader(400)
 	} else {
 		sv := &models.TeamClient{}
 		_, err1 := sv.GetItemById(team.GetTeamId())
-		err2 := sv.Put(team)
+		err2 := sv.PutItem(team)
 		if err2 != nil {
-			this.Ctx.ResponseWriter.WriteHeader(500)
+			t.Ctx.ResponseWriter.WriteHeader(500)
 		} else if err1 != nil {
-			this.Ctx.ResponseWriter.WriteHeader(201)
-			this.Ctx.ResponseWriter.Header().Set("location", fmt.Sprintf("%s/%s/%s", this.Ctx.Input.Host(),this.Ctx.Input.URL(), team.GetTeamId()))
+			t.Ctx.ResponseWriter.WriteHeader(201)
+			t.Ctx.ResponseWriter.Header().Set("location", fmt.Sprintf("%s/%s/%s", t.Ctx.Input.Host(),t.Ctx.Input.URL(), team.GetTeamId()))
 		} else {
-			this.Ctx.ResponseWriter.WriteHeader(204)
+			t.Ctx.ResponseWriter.WriteHeader(204)
 		}
 	}
 }
@@ -105,19 +205,19 @@ func (this *TeamController) Put(){
 // @Param	uid		path	string	true
 // @Success	204
 // @router /:uid [delete]
-func (this *TeamController) Delete(){
+func (t *TeamController) Delete(){
 
-	defer this.ServeJSON()
+	defer t.ServeJSON()
 	sv := &models.TeamClient{}
-	uid := this.GetString(":uid")
+	uid := t.GetString(":uid")
 	_, err := sv.GetItemById(uid)
 	if err != nil {
-		this.Ctx.ResponseWriter.WriteHeader(404)
+		t.Ctx.ResponseWriter.WriteHeader(404)
 	} else {
-		err = sv.Remove(uid)
+		err = sv.RemoveItem(uid)
 		if err != nil {
-			this.Ctx.ResponseWriter.WriteHeader(500)
+			t.Ctx.ResponseWriter.WriteHeader(500)
 		}
-		this.Ctx.ResponseWriter.WriteHeader(204)
+		t.Ctx.ResponseWriter.WriteHeader(204)
 	}
 }

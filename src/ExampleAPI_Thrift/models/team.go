@@ -21,70 +21,88 @@ type TeamClient struct {
 	Transport        thrift.TTransport
 }
 
-func (this *TeamClient) InitSocket()  {
+func (t *TeamClient) InitSocket()  {
 
-	this.TransportFactory = thrift.NewTBufferedTransportFactory(8192)
+	t.TransportFactory = thrift.NewTBufferedTransportFactory(8192)
 
-	this.ProtocolFactory = thrift.NewTBinaryProtocolFactoryDefault()
+	t.ProtocolFactory = thrift.NewTBinaryProtocolFactoryDefault()
 	var err error
-	this.Transport, err = thrift.NewTSocket(addr)
+	t.Transport, err = thrift.NewTSocket(addr)
 	if err != nil {
 		log.Println(err, "Error Opening socket: ")
 	}
-	if this.Transport == nil{
+	if t.Transport == nil{
 		log.Println("Error from transportFactory.GetTransport(), got nil transport. Is server available?")
 	}
-	this.Transport, err = this.TransportFactory.GetTransport(this.Transport)
+	t.Transport, err = t.TransportFactory.GetTransport(t.Transport)
 	if err != nil {
 		log.Println("Error from transportFactory.GetTransport(), got nil transport. Is server available?")
 	}
-	err = this.Transport.Open()
+	err = t.Transport.Open()
 	if err !=nil {
 		log.Println(err, "error opening transport")
 	}
 }
 
 //GetItemsAll Team
-func (this *TeamClient) GetItemsAll() (*myGeneric.TTeamSetResult_, error) {
+func (t *TeamClient) GetItemsAll() (*myGeneric.TTeamSetResult_, error) {
 
-	this.InitSocket()
-	defer this.Transport.Close()
+	t.InitSocket()
+	defer t.Transport.Close()
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 
-	client := myGeneric.NewTGenericServiceClientFactory(this.Transport, this.ProtocolFactory)
+	client := myGeneric.NewTGenericServiceClientFactory(t.Transport, t.ProtocolFactory)
 
-	result, err := client.GetItemsTeam(ctx,BS_TEAM)
+	result, err := client.GetItemsTeam(ctx, BS_TEAM)
 	if err != nil {
 		fmt.Fprintln(os.Stderr, "bigset error", err)
+		return nil, err
 	}
-	fmt.Println("result is: ",result)
 	return result, nil
 }
 
-func (this *TeamClient) GetItemById(id string) (*myGeneric.TTeamResult_, error)  {
+func (t *TeamClient) GetItemsPagination(offset int32, limit int32) (*myGeneric.TTeamSetResult_, error){
 
-	this.InitSocket()
-	defer this.Transport.Close()
+	t.InitSocket()
+	defer t.Transport.Close()
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 
-	client := myGeneric.NewTGenericServiceClientFactory(this.Transport, this.ProtocolFactory)
+	client := myGeneric.NewTGenericServiceClientFactory(t.Transport, t.ProtocolFactory)
+
+	result, err := client.GetTeamsPagination(ctx, BS_PERSON, offset, limit)
+	if err != nil {
+		fmt.Fprintln(os.Stderr, "bigset error", err)
+		return nil, err
+	}
+	return result, nil
+}
+
+func (t *TeamClient) GetItemById(id string) (*myGeneric.TTeamResult_, error)  {
+
+	t.InitSocket()
+	defer t.Transport.Close()
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+
+	client := myGeneric.NewTGenericServiceClientFactory(t.Transport, t.ProtocolFactory)
 	result, err := client.GetItemTeam(ctx, BS_TEAM, id)
 	if err != nil {
 		fmt.Fprintln(os.Stderr, "bigset error", err)
+		return nil, err
 	}
-	return result, err
+	return result, nil
 }
 
-func (this *TeamClient) Put(item *myGeneric.TTeam) error {
+func (t *TeamClient) PutItem(item *myGeneric.TTeam) error {
 
-	this.InitSocket()
-	defer this.Transport.Close()
+	t.InitSocket()
+	defer t.Transport.Close()
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 
-	client := myGeneric.NewTGenericServiceClientFactory(this.Transport, this.ProtocolFactory)
+	client := myGeneric.NewTGenericServiceClientFactory(t.Transport, t.ProtocolFactory)
 	err := client.PutItemTeam(ctx, BS_TEAM, item)
 	if err != nil {
 		fmt.Fprintln(os.Stderr, "bigset error", err)
@@ -93,18 +111,34 @@ func (this *TeamClient) Put(item *myGeneric.TTeam) error {
 	return nil
 }
 
-func (this *TeamClient) Remove(id string) error {
+func (t *TeamClient) RemoveItem(teamId string) error {
 
-	this.InitSocket()
-	defer this.Transport.Close()
+	t.InitSocket()
+	defer t.Transport.Close()
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 
-	client := myGeneric.NewTGenericServiceClientFactory(this.Transport, this.ProtocolFactory)
-	err := client.RemoveItem(ctx, BS_TEAM, id)
+	client := myGeneric.NewTGenericServiceClientFactory(t.Transport, t.ProtocolFactory)
+	err := client.RemoveItem(ctx, BS_TEAM, teamId)
 	if err != nil {
 		fmt.Fprintln(os.Stderr, "bigset error", err)
 		return err
+	}
+
+	//xóa tất cả các node ràng buộc giữa team và person
+	personsOfTeam, err := client.GetPersonsOfTeam(ctx, teamId, BS_PERSON)
+	if err != nil {
+		fmt.Fprintln(os.Stderr, "bigset error", err)
+	} else {
+		// xóa các node bigset name : personID
+		for _, v := range personsOfTeam.Items {
+			_ = client.RemoveAll(ctx, v.GetPersonId())
+		}
+	}
+	// xóa các node bigset name : teamID
+	err = client.RemoveAll(ctx, teamId)
+	if err != nil {
+		fmt.Fprintln(os.Stderr, "bigset error", err)
 	}
 	return nil
 }

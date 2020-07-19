@@ -25,22 +25,17 @@ func MarshalArrayBytes(obj interface{}) ([][]byte, [][]byte, error){
 	return objs, keys, nil
 }
 
-func MarshalBytes(object interface{}) ([]byte, []byte, error) {
-	var key []byte
+func MarshalBytes(object interface{}) ([]byte, error) {
 	if object == nil {
-		return nil, nil, errors.New("object must be not nil")
+		return nil, errors.New("object must be not nil")
 	}
 
 	obj, err := json.Marshal(object)
 	if err != nil {
-		return nil, nil, err
+		return nil, err
 	}
 
-	key = []byte(fmt.Sprintf("%v", object))
-	test := fmt.Sprintf("%v", object)
-	log.Println(test, "-- test")
-
-	return obj, key, nil
+	return obj, nil
 }
 
 
