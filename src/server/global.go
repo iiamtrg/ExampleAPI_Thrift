@@ -8,7 +8,6 @@ import (
 	"sync"
 )
 
-
 var (
 	bigsetIf StringBigsetService.StringBigsetServiceIf
 	Once     sync.Once
@@ -19,6 +18,7 @@ const ETCDENDPOINT = "127.0.0.1:2379"
 const SID = "test/test"
 const HOST = "127.0.0.1"
 const PORT = "18407"
+
 func init()  {
 	// bigset config
 	config := &appconfig.AppConfig{}
@@ -33,7 +33,6 @@ func init()  {
 }
 
 func InitBigSetIf() {
-
 
 	log.Println(appconfig.Config, "appconfig.Config")
 	Once.Do(func() {

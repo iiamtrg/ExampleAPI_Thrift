@@ -15,10 +15,6 @@ func init()  {
 
 func main()  {
 
-	err := bigsetIf.RemoveAll("Team")
-	if err != nil {
-		fmt.Println(err)
-	}
 	transportFactory := thrift.NewTBufferedTransportFactory(8192)
 	protocolFactory := thrift.NewTBinaryProtocolFactoryDefault()
 

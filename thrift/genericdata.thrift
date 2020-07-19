@@ -7,25 +7,19 @@ enum TErrorCode {
     UNKNOWN_EXCEPTION = 500,
 }
 
-struct TDate{
-    1: required i32 year,
-    2: required i32 month,
-    3: required i32 day,
-}
+
 
 struct TPerson {
     1: required string personId,
     2: optional string personName,
-    3: optional TDate birthDate,
-    4: optional string personAddress,
-    5: optional TTeam team
+    3: optional string birthDate,
+    4: optional string personAddress
 }
 
 struct TTeam {
     1: required string teamId,
     2: optional string teamName,
-    3: optional string teamAddress,
-    4: optional list<TPerson> persons
+    3: optional string teamAddress
 }
 
 
@@ -56,16 +50,31 @@ service TGenericService {
 
     TPeronSetResult getItemsPerson(1: string bsKey),
 
-    void putItemPerson(1: string bsKey, 2: TPerson item),
+    TPeronSetResult getPersonsPagination(1: string bsKey, 2: i32 offset, 3: i32 limit)
+
+    TPeronSetResult getPersonsOfTeam(1: string bsKey, 2: string bsKeyPerson),
 
     TTeamResult getItemTeam(1: string bsKey, 2: string rootID),
 
     TTeamSetResult getItemsTeam(1: string bsKey),
 
+    TTeamSetResult getTeamsPagination(1: string bsKey, 2: i32 offset, 3: i32 limit)
+
+    TTeamResult getPersonIsTeam(1: string bsKey, 2: string bsKeyTeam),
+
+    void putItemPerson(1: string bsKey, 2: TPerson item),
+
+    void putPersonIsTeam(1: string bsKey, 2: string teamId),
+
     void putItemTeam(1: string bsKey, 2: TTeam item),
+
+    void putPersonToTeam(1: string bsKey, 2: string personId)
+
+    void putMultiPersonsToTeam(1: string bsKey, 2: list<string> personIds),
+
+    bool itemIsExist(1: string bsKey, 2: string rootID),
 
     void removeItem(1: string bsKey, 2: string rootID),
 
     void removeAll(1: string bsKey)
-
 }
