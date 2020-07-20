@@ -6,16 +6,17 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"github.com/OpenStars/EtcdBackendService/StringBigsetService/bigset/thrift/gen-go/openstars/core/bigset/generic"
 	"log"
 	"time"
+
+	"github.com/OpenStars/EtcdBackendService/StringBigsetService/bigset/thrift/gen-go/openstars/core/bigset/generic"
 )
 
 type GenericServiceHandler struct {
 	myGeneric.TGenericService
 }
 
-func (this *GenericServiceHandler) String(obj interface{}) string{
+func (this *GenericServiceHandler) String(obj interface{}) string {
 	return fmt.Sprintf("%s", obj)
 }
 
@@ -23,9 +24,8 @@ func (this *GenericServiceHandler) GetBsKey(bsKey string) generic.TStringKey {
 	return generic.TStringKey(fmt.Sprintf("%s", bsKey))
 }
 
-
 // check item is exist in bigset
-func (this *GenericServiceHandler) ItemIsExist(ctx context.Context, bsKey string, rooId string) (bool, error){
+func (this *GenericServiceHandler) ItemIsExist(ctx context.Context, bsKey string, rooId string) (bool, error) {
 
 	_ = ctx
 	item, err := bigsetIf.BsGetItem(this.GetBsKey(bsKey), generic.TItemKey(rooId))
@@ -38,7 +38,7 @@ func (this *GenericServiceHandler) ItemIsExist(ctx context.Context, bsKey string
 	return false, nil
 }
 
-func (this *GenericServiceHandler) GetItemPerson(ctx context.Context, bsKey string, rootID string) (*myGeneric.TPersonResult_, error){
+func (this *GenericServiceHandler) GetItemPerson(ctx context.Context, bsKey string, rootID string) (*myGeneric.TPersonResult_, error) {
 
 	_ = ctx
 	bPerson, err := bigsetIf.BsGetItem(this.GetBsKey(bsKey), generic.TItemKey(this.String(rootID)))
@@ -46,7 +46,7 @@ func (this *GenericServiceHandler) GetItemPerson(ctx context.Context, bsKey stri
 		log.Println("error get Item: ", err)
 		r := &myGeneric.TPersonResult_{
 			Error: myGeneric.TErrorCode_ITEM_NOT_EXISTED,
-			Item: nil,
+			Item:  nil,
 		}
 		return r, err
 	}
@@ -54,12 +54,12 @@ func (this *GenericServiceHandler) GetItemPerson(ctx context.Context, bsKey stri
 	err = json.Unmarshal(bPerson.GetValue(), &item)
 	r := &myGeneric.TPersonResult_{
 		Error: myGeneric.TErrorCode_SUCCESS,
-		Item: &item,
+		Item:  &item,
 	}
 	return r, nil
 }
 
-func (this *GenericServiceHandler) GetItemsPerson(ctx context.Context, bsKey string) (*myGeneric.TPeronSetResult_, error){
+func (this *GenericServiceHandler) GetItemsPerson(ctx context.Context, bsKey string) (*myGeneric.TPeronSetResult_, error) {
 	_ = ctx
 	totalCount, err := bigsetIf.GetTotalCount(this.GetBsKey(bsKey))
 	if err != nil {
@@ -67,12 +67,12 @@ func (this *GenericServiceHandler) GetItemsPerson(ctx context.Context, bsKey str
 		return nil, err
 	}
 	slice, err := bigsetIf.BsGetSliceR(this.GetBsKey(bsKey), 0, int32(totalCount))
-	if err != nil{
+	if err != nil {
 		log.Println("err bigset", err)
-		return nil,err
+		return nil, err
 	}
 	arrayTemp := make([]*myGeneric.TPerson, 0)
-	for _,v := range slice {
+	for _, v := range slice {
 		var temp myGeneric.TPerson
 		_ = json.Unmarshal(v.GetValue(), &temp)
 		arrayTemp = append(arrayTemp, &temp)
@@ -84,23 +84,23 @@ func (this *GenericServiceHandler) GetItemsPerson(ctx context.Context, bsKey str
 	return r, nil
 }
 
-func (this *GenericServiceHandler) GetPersonsPagination(ctx context.Context, bsKey string, offset int32, limit int32) (*myGeneric.TPeronSetResult_, error){
+func (this *GenericServiceHandler) GetPersonsPagination(ctx context.Context, bsKey string, offset int32, limit int32) (*myGeneric.TPeronSetResult_, error) {
 
 	_ = ctx
 	count, err := bigsetIf.GetTotalCount(this.GetBsKey(bsKey))
-	if err != nil{
+	if err != nil {
 		log.Println("err bigset", err)
 	}
 	if limit <= 0 {
 		limit = int32(count)
 	}
 	slice, err := bigsetIf.BsGetSliceR(this.GetBsKey(bsKey), offset, limit)
-	if err != nil{
+	if err != nil {
 		log.Println("err bigset", err)
-		return nil,err
+		return nil, err
 	}
 	arrayTemp := make([]*myGeneric.TPerson, 0)
-	for _,v := range slice {
+	for _, v := range slice {
 		var temp myGeneric.TPerson
 		_ = json.Unmarshal(v.GetValue(), &temp)
 		arrayTemp = append(arrayTemp, &temp)
@@ -121,12 +121,12 @@ func (this *GenericServiceHandler) GetPersonsOfTeam(ctx context.Context, bsKey s
 		return nil, err
 	}
 	slice, err := bigsetIf.BsGetSliceR(this.GetBsKey(bsKey), 0, int32(count))
-	if err != nil{
+	if err != nil {
 		log.Println(err, "bigset error: ")
 		return nil, err
 	}
 	arrayTemp := make([]*myGeneric.TPerson, 0)
-	for _,v := range slice {
+	for _, v := range slice {
 		bPerson, err := this.GetItemPerson(ctx, bsKeyPerson, string(v.GetKey()))
 		if err != nil {
 			log.Println(err, "bigset error: ")
@@ -141,18 +141,18 @@ func (this *GenericServiceHandler) GetPersonsOfTeam(ctx context.Context, bsKey s
 	return r, nil
 }
 
-
 //@param bsKey is person id
 func (this *GenericServiceHandler) PutPersonIsTeam(ctx context.Context, bsKey string, teamId string) error {
 
 	_ = ctx
-	bTeam, _ := bigsetIf.BsGetSliceR(this.GetBsKey(bsKey),0 ,1)
+	bTeam, _ := bigsetIf.BsGetSliceR(this.GetBsKey(bsKey), 0, 1)
 
-	if bTeam != nil && len(bTeam) > 0 {
+	if bTeam != nil {
 		// remove
 		err := bigsetIf.RemoveAll(this.GetBsKey(bsKey))
 		if err != nil {
-			log.Println(err, "bigset error")
+
+			log.Println(err, "bigset error: Can not  remove item bsKey")
 			return err
 		}
 	}
@@ -163,7 +163,7 @@ func (this *GenericServiceHandler) PutPersonIsTeam(ctx context.Context, bsKey st
 		return err
 	}
 	err = bigsetIf.BsPutItem(this.GetBsKey(bsKey), &generic.TItem{
-		Key: []byte(fmt.Sprintf("%s", teamId)),
+		Key:   []byte(fmt.Sprintf("%s", teamId)),
 		Value: bTime,
 	})
 	if err != nil {
@@ -172,7 +172,6 @@ func (this *GenericServiceHandler) PutPersonIsTeam(ctx context.Context, bsKey st
 	}
 	return nil
 }
-
 
 func (this *GenericServiceHandler) PutItemPerson(ctx context.Context, bsKey string, item *myGeneric.TPerson) error {
 
@@ -183,7 +182,7 @@ func (this *GenericServiceHandler) PutItemPerson(ctx context.Context, bsKey stri
 		return err
 	}
 	err = bigsetIf.BsPutItem(this.GetBsKey(bsKey), &generic.TItem{
-		Key: key,
+		Key:   key,
 		Value: bPerson,
 	})
 	if err != nil {
@@ -193,7 +192,7 @@ func (this *GenericServiceHandler) PutItemPerson(ctx context.Context, bsKey stri
 	return nil
 }
 
-func (this *GenericServiceHandler) GetItemTeam(ctx context.Context, bsKey string, rootID string) (*myGeneric.TTeamResult_, error){
+func (this *GenericServiceHandler) GetItemTeam(ctx context.Context, bsKey string, rootID string) (*myGeneric.TTeamResult_, error) {
 
 	_ = ctx
 	bTeam, err := bigsetIf.BsGetItem(this.GetBsKey(bsKey), generic.TItemKey(this.String(rootID)))
@@ -219,7 +218,7 @@ func (this *GenericServiceHandler) GetPersonIsTeam(ctx context.Context, bsKey st
 		log.Println(err, "bigset error:")
 		return nil, err
 	}
-	if len(slice) > 0 {
+	if slice != nil {
 		team, err := this.GetItemTeam(ctx, bsKeyTeam, string(slice[0].GetKey()))
 		if err != nil {
 			log.Println(err, "bigset error:")
@@ -230,7 +229,7 @@ func (this *GenericServiceHandler) GetPersonIsTeam(ctx context.Context, bsKey st
 	return nil, nil
 }
 
-func (this *GenericServiceHandler) GetItemsTeam(ctx context.Context, bsKey string) (*myGeneric.TTeamSetResult_, error){
+func (this *GenericServiceHandler) GetItemsTeam(ctx context.Context, bsKey string) (*myGeneric.TTeamSetResult_, error) {
 
 	_ = ctx
 	totalCount, err := bigsetIf.GetTotalCount(this.GetBsKey(bsKey))
@@ -238,12 +237,12 @@ func (this *GenericServiceHandler) GetItemsTeam(ctx context.Context, bsKey strin
 		return nil, err
 	} else {
 		slice, err := bigsetIf.BsGetSliceR(this.GetBsKey(bsKey), 0, int32(totalCount))
-		if err != nil{
-			return nil,err
+		if err != nil {
+			return nil, err
 		}
 
 		arrayTemp := make([]*myGeneric.TTeam, 0)
-		for _,v := range slice {
+		for _, v := range slice {
 			var temp myGeneric.TTeam
 			_ = json.Unmarshal(v.GetValue(), &temp)
 			arrayTemp = append(arrayTemp, &temp)
@@ -260,19 +259,19 @@ func (this *GenericServiceHandler) GetTeamsPagination(ctx context.Context, bsKey
 
 	_ = ctx
 	count, err := bigsetIf.GetTotalCount(this.GetBsKey(bsKey))
-	if err != nil{
+	if err != nil {
 		log.Println("err bigset", err)
 	}
 	if limit <= 0 {
 		limit = int32(count)
 	}
 	slice, err := bigsetIf.BsGetSliceR(this.GetBsKey(bsKey), offset, limit)
-	if err != nil{
+	if err != nil {
 		return nil, err
 	}
 
 	arrayTemp := make([]*myGeneric.TTeam, 0)
-	for _,v := range slice {
+	for _, v := range slice {
 		var temp myGeneric.TTeam
 		_ = json.Unmarshal(v.GetValue(), &temp)
 		arrayTemp = append(arrayTemp, &temp)
@@ -293,7 +292,7 @@ func (this *GenericServiceHandler) PutItemTeam(ctx context.Context, bsKey string
 	}
 	key := []byte(item.TeamId)
 	err = bigsetIf.BsPutItem(this.GetBsKey(bsKey), &generic.TItem{
-		Key: key,
+		Key:   key,
 		Value: bTeam,
 	})
 	if err != nil {
@@ -313,10 +312,11 @@ func (this *GenericServiceHandler) PutPersonToTeam(ctx context.Context, bsKey st
 		return err
 	}
 	err = bigsetIf.BsPutItem(this.GetBsKey(bsKey), &generic.TItem{
-		Key: []byte(fmt.Sprintf("%s", personId)),
+		Key:   []byte(fmt.Sprintf("%s", personId)),
 		Value: bTime,
 	})
 	if err != nil {
+		log.Println("put item")
 		log.Println(err, "bigset err: ")
 		return err
 	}
@@ -333,9 +333,9 @@ func (this *GenericServiceHandler) PutMultiPersonsToTeam(ctx context.Context, bs
 		return err
 	}
 	items := make([]*generic.TItem, 0)
-	for _, v := range personIds{
+	for _, v := range personIds {
 		items = append(items, &generic.TItem{
-			Key: []byte(v),
+			Key:   []byte(v),
 			Value: bTime,
 		})
 	}

@@ -7,6 +7,7 @@ import (
 	"encoding/json"
 	"net/http"
 	"net/http/httptest"
+	"net/url"
 	"path/filepath"
 	"runtime"
 	"testing"
@@ -21,6 +22,8 @@ func init() {
 	apppath, _ := filepath.Abs(filepath.Dir(filepath.Join(file, ".."+string(filepath.Separator))))
 	beego.TestBeegoInit(apppath)
 }
+
+// test get all persons
 func TestGetPersons(t *testing.T) {
 	req, err := http.NewRequest("GET", "/v1/person", nil)
 	if err != nil {
@@ -45,6 +48,7 @@ func TestGetPersons(t *testing.T) {
 	})
 }
 
+// test get person by id
 func TestGetPersonById(t *testing.T) {
 	req, err := http.NewRequest("GET", "/v1/person/p-1", nil)
 	if err != nil {
@@ -69,6 +73,7 @@ func TestGetPersonById(t *testing.T) {
 	})
 }
 
+// test create new person
 func TestCreatePerson(t *testing.T) {
 	var jsonStr = []byte(`{"personId":"p-2","personName":"Truong2","birthDate":"15-04-1998","personAddress":"HN2"}`)
 
@@ -89,6 +94,7 @@ func TestCreatePerson(t *testing.T) {
 	})
 }
 
+// test update a person
 func TestPutPerson(t *testing.T) {
 	var jsonStr = []byte(`{"personId":"p-2","personName":"Truong_Put","birthDate":"15-04-1998","personAddress":"HN2"}`)
 
@@ -109,6 +115,7 @@ func TestPutPerson(t *testing.T) {
 	})
 }
 
+// test delete a person
 func TestDeletePerson(t *testing.T) {
 
 	req, err := http.NewRequest("DELETE", "/v1/person/p-1", nil)
@@ -128,6 +135,7 @@ func TestDeletePerson(t *testing.T) {
 	})
 }
 
+// test get a list of person of the team
 func TestGetPersonOfTeam(t *testing.T) {
 	req, err := http.NewRequest("GET", "/v1/person/team/t-12", nil)
 	if err != nil {
@@ -147,6 +155,30 @@ func TestGetPersonOfTeam(t *testing.T) {
 		})
 		Convey("The Result Should Not Be Empty", func() {
 			So(w.Body.Len(), ShouldBeGreaterThan, 0)
+		})
+
+	})
+}
+
+// test add team for person
+func TestPostPersonIsTeam(t *testing.T) {
+
+	form := url.Values{}
+	form.Set("teamId", "t-12")
+	req, err := http.NewRequest("POST", "/v1/person/p-1/team", nil)
+	if err != nil {
+		t.Fatal(err)
+	}
+	req.PostForm = form
+	req.Header.Set("Content-Type", "multipart/form-data")
+	w := httptest.NewRecorder()
+	beego.BeeApp.Handlers.ServeHTTP(w, req)
+
+	log.Trace("testing", "TestPerson", "Code[%d]\n%s", w.Code, w.Body.String())
+
+	Convey("Subject: Test Person Endpoint\n", t, func() {
+		Convey("Status Code Should Be 201", func() {
+			So(w.Code, ShouldEqual, 201)
 		})
 
 	})
