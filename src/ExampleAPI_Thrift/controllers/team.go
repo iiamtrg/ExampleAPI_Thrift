@@ -6,17 +6,17 @@ import (
 	_ "ExampleAPI_Bigset_Thrift/thrift/gen-go/myGeneric"
 	"encoding/json"
 	"fmt"
-	"github.com/astaxie/beego"
 	"regexp"
 	"strconv"
 	"strings"
+
+	"github.com/astaxie/beego"
 )
 
 // Operations about Users
 type TeamController struct {
 	beego.Controller
 }
-
 
 // @Title GetAll
 // @Description get all person
@@ -30,7 +30,7 @@ func (t *TeamController) Get() {
 	sv := &models.TeamClient{}
 	off := t.GetString("offset")
 	limit := t.GetString("limit")
-	if off == "" && limit == ""{
+	if off == "" && limit == "" {
 		result, err := sv.GetItemsAll()
 		if err != nil {
 			t.Ctx.ResponseWriter.WriteHeader(500)
@@ -38,7 +38,7 @@ func (t *TeamController) Get() {
 			t.Ctx.ResponseWriter.WriteHeader(200)
 			t.Data["json"] = result
 		}
-	} else if off != "" && limit == ""{
+	} else if off != "" && limit == "" {
 		offInt, err := strconv.Atoi(off)
 		if err != nil {
 			t.Ctx.ResponseWriter.WriteHeader(400)
@@ -50,7 +50,7 @@ func (t *TeamController) Get() {
 		}
 		t.Data["json"] = result
 		return
-	} else if off == "" && limit != ""{
+	} else if off == "" && limit != "" {
 		limitInt, err := strconv.Atoi(limit)
 		if err != nil {
 			t.Ctx.ResponseWriter.WriteHeader(400)
@@ -111,7 +111,7 @@ func (t *TeamController) GetPersonTeam() {
 	uid := t.GetString(":uid")
 	sv := &models.PersonClient{}
 	result, err := sv.GetPersonTeam(uid)
-	if err != nil{
+	if err != nil {
 		t.Ctx.ResponseWriter.WriteHeader(404)
 		return
 	}
@@ -127,14 +127,14 @@ func (t *TeamController) Post() {
 	defer t.ServeJSON()
 	team := myGeneric.TTeam{}
 	err := json.Unmarshal(t.Ctx.Input.RequestBody, &team)
-	if err != nil{
+	if err != nil {
 		t.Ctx.ResponseWriter.WriteHeader(400)
 		t.Data["json"] = "data is not mapping success"
 	} else {
 		matched, err := regexp.Match(`^t-\d+$`, []byte(team.GetTeamId()))
 		if err != nil || !matched {
 			t.Ctx.ResponseWriter.WriteHeader(400)
-			obj := make(map[string]string,0)
+			obj := make(map[string]string, 0)
 			obj["code"] = "400"
 			obj["message"] = "teamID is not valid. Pattern: t-[0-9]+"
 			t.Data["json"] = obj
@@ -146,6 +146,7 @@ func (t *TeamController) Post() {
 			t.Ctx.ResponseWriter.WriteHeader(500)
 			return
 		}
+		t.Ctx.ResponseWriter.WriteHeader(201)
 		t.Data["json"] = "create success"
 	}
 }
@@ -178,12 +179,12 @@ func (t *TeamController) PostPerson() {
 // @Param body	body	myGeneric.TTeam true
 // @Success 201 | 204
 // @router /:uid [put]
-func (t *TeamController) Put(){
+func (t *TeamController) Put() {
 
 	defer t.ServeJSON()
 	team := &myGeneric.TTeam{}
 	err := json.Unmarshal(t.Ctx.Input.RequestBody, &team)
-	if err != nil || strings.Compare(team.GetTeamId(), t.GetString(":uid")) != 0{
+	if err != nil || strings.Compare(team.GetTeamId(), t.GetString(":uid")) != 0 {
 		t.Ctx.ResponseWriter.WriteHeader(400)
 	} else {
 		sv := &models.TeamClient{}
@@ -193,7 +194,7 @@ func (t *TeamController) Put(){
 			t.Ctx.ResponseWriter.WriteHeader(500)
 		} else if err1 != nil {
 			t.Ctx.ResponseWriter.WriteHeader(201)
-			t.Ctx.ResponseWriter.Header().Set("location", fmt.Sprintf("%s/%s/%s", t.Ctx.Input.Host(),t.Ctx.Input.URL(), team.GetTeamId()))
+			t.Ctx.ResponseWriter.Header().Set("location", fmt.Sprintf("%s/%s/%s", t.Ctx.Input.Host(), t.Ctx.Input.URL(), team.GetTeamId()))
 		} else {
 			t.Ctx.ResponseWriter.WriteHeader(204)
 		}
@@ -205,7 +206,7 @@ func (t *TeamController) Put(){
 // @Param	uid		path	string	true
 // @Success	204
 // @router /:uid [delete]
-func (t *TeamController) Delete(){
+func (t *TeamController) Delete() {
 
 	defer t.ServeJSON()
 	sv := &models.TeamClient{}
