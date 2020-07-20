@@ -165,6 +165,7 @@ func (p *PersonController) PostTeam() {
 	err := sv.PutPersonIsTeam(uid, teamId)
 	if err != nil {
 		p.Ctx.ResponseWriter.WriteHeader(400)
+		p.Data["json"] = err.Error()
 		return
 	}
 	p.Ctx.ResponseWriter.WriteHeader(201)

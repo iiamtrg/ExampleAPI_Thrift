@@ -7,6 +7,7 @@ import (
 	"encoding/json"
 	"net/http"
 	"net/http/httptest"
+	"net/url"
 	"path/filepath"
 	"runtime"
 	"testing"
@@ -21,6 +22,8 @@ func init() {
 	apppath, _ := filepath.Abs(filepath.Dir(filepath.Join(file, ".."+string(filepath.Separator))))
 	beego.TestBeegoInit(apppath)
 }
+
+// test get all team
 func TestGetTeams(t *testing.T) {
 	req, err := http.NewRequest("GET", "/v1/team", nil)
 	if err != nil {
@@ -45,6 +48,7 @@ func TestGetTeams(t *testing.T) {
 	})
 }
 
+// test get team by teamid
 func TestGetTeamById(t *testing.T) {
 	req, err := http.NewRequest("GET", "/v1/team/t-12", nil)
 	if err != nil {
@@ -69,6 +73,7 @@ func TestGetTeamById(t *testing.T) {
 	})
 }
 
+// test create new team
 func TestCreateTeam(t *testing.T) {
 	var jsonStr = []byte(`{"teamId":"t-2","teamName":"Mobile","teamAddress":"HN"}`)
 
@@ -89,6 +94,7 @@ func TestCreateTeam(t *testing.T) {
 	})
 }
 
+// test update a team
 func TestPutTeam(t *testing.T) {
 	var jsonStr = []byte(`{"teamId":"t-2","teamName":"Mobile_Put","teamAddress":"HN2"}`)
 
@@ -108,6 +114,7 @@ func TestPutTeam(t *testing.T) {
 	})
 }
 
+// test delete a team
 func TestDeleteTeam(t *testing.T) {
 
 	req, err := http.NewRequest("DELETE", "/v1/team/t-2", nil)
@@ -127,6 +134,7 @@ func TestDeleteTeam(t *testing.T) {
 	})
 }
 
+// Get the person's team list
 func TestGetPersonIsTeam(t *testing.T) {
 	req, err := http.NewRequest("GET", "/v1/team/person/p-1", nil)
 	if err != nil {
@@ -146,6 +154,30 @@ func TestGetPersonIsTeam(t *testing.T) {
 		})
 		Convey("The Result Should Not Be Empty", func() {
 			So(w.Body.Len(), ShouldBeGreaterThan, 0)
+		})
+
+	})
+}
+
+// test post person to team
+func TestPostPersonToTeam(t *testing.T) {
+
+	form := url.Values{}
+	form.Set("personId", "p-1")
+	req, err := http.NewRequest("POST", "/v1/team/t-12/person", nil)
+	if err != nil {
+		t.Fatal(err)
+	}
+	req.PostForm = form
+	req.Header.Set("Content-Type", "multipart/form-data")
+	w := httptest.NewRecorder()
+	beego.BeeApp.Handlers.ServeHTTP(w, req)
+
+	log.Trace("testing", "TestTeam", "Code[%d]\n%s", w.Code, w.Body.String())
+
+	Convey("Subject: Test Team Endpoint\n", t, func() {
+		Convey("Status Code Should Be 201", func() {
+			So(w.Code, ShouldEqual, 201)
 		})
 
 	})
