@@ -196,14 +196,9 @@ func (this *GenericServiceHandler) PutItemPerson(ctx context.Context, bsKey stri
 	})
 	if err != nil {
 		log.Println(err, "bigset error")
-	} else {
-		// put node personID to bigset (bsKey : teamID)
-		err = this.PutPersonToTeam(ctx, item.GetTeamId(), item.GetPersonId())
-		if err != nil {
-			log.Println(err, "PutPerson to Team Fbigset error")
-		}
+		return err
 	}
-	return err
+	return nil
 }
 
 func (this *GenericServiceHandler) GetItemTeam(ctx context.Context, bsKey string, rootID string) (*myGeneric.TTeamResult_, error) {
@@ -315,45 +310,6 @@ func (this *GenericServiceHandler) PutItemTeam(ctx context.Context, bsKey string
 	return nil
 }
 
-// func (this *GenericServiceHandler) PutPersonToTeam(ctx context.Context, bsKey string, personId string) error {
-
-// 	_ = ctx
-// 	// add person to team
-// 	bTime, err := helps.MarshalBytes(time.Now().Format("2006-01-02"))
-// 	if err != nil {
-// 		log.Println(err, "format time error")
-// 		return err
-// 	}
-// 	err = bigsetIf.BsPutItem(this.GetBsKey(bsKey), &generic.TItem{
-// 		Key:   []byte(fmt.Sprintf("%s", personId)),
-// 		Value: bTime,
-// 	})
-// 	if err != nil {
-// 		log.Println(err, "put person to team bigset err: ")
-// 		return err
-// 	}
-// 	return nil
-// }
-
-// func (this *GenericServiceHandler) PutMultiPersonsToTeam(ctx context.Context, bsKey string, personIds []string) error {
-
-// 	_ = ctx
-// 	// add person to team
-// 	bTime, err := helps.MarshalBytes(time.Now().Format("2006-01-02"))
-// 	if err != nil {
-// 		log.Println(err, "format time error")
-// 		return err
-// 	}
-// 	items := make([]*generic.TItem, 0)
-// 	for _, v := range personIds {
-// 		items = append(items, &generic.TItem{
-// 			Key:   []byte(v),
-// 			Value: bTime,
-// 		})
-// 	}
-// 	return bigsetIf.BsMultiPut(this.GetBsKey(bsKey), items)
-// }
-
 func (this *GenericServiceHandler) RemoveItem(ctx context.Context, bsKey string, rooID string) error {
 
 	_ = ctx
@@ -364,14 +320,3 @@ func (this *GenericServiceHandler) RemoveItem(ctx context.Context, bsKey string,
 	return nil
 
 }
-
-// func (this *GenericServiceHandler) RemoveAll(ctx context.Context, bsKey string) error {
-
-// 	_ = ctx
-// 	err := bigsetIf.RemoveAll(this.GetBsKey(bsKey))
-// 	if err != nil {
-// 		log.Printf("can not remove bigset of %s", bsKey)
-// 	}
-// 	return nil
-
-// }
