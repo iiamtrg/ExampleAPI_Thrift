@@ -95,7 +95,11 @@ func (t *TeamController) GetById() {
 	result, err := sv.GetItemById(t.GetString(":uid"))
 	if err != nil {
 		t.Ctx.ResponseWriter.WriteHeader(404)
-		t.Data["json"] = "id is not existed"
+		errJson := &Error{}
+		errJson.code = "404"
+		errJson.message = err.Error()
+		t.Data["json"] = errJson
+		return
 	}
 	t.Data["json"] = result
 }
@@ -113,6 +117,10 @@ func (t *TeamController) GetPersonTeam() {
 	result, err := sv.GetPersonTeam(uid)
 	if err != nil {
 		t.Ctx.ResponseWriter.WriteHeader(404)
+		errJson := &Error{}
+		errJson.code = "404"
+		errJson.message = err.Error()
+		t.Data["json"] = errJson
 		return
 	}
 	t.Data["json"] = result
@@ -129,7 +137,11 @@ func (t *TeamController) Post() {
 	err := json.Unmarshal(t.Ctx.Input.RequestBody, &team)
 	if err != nil {
 		t.Ctx.ResponseWriter.WriteHeader(400)
-		t.Data["json"] = "data is not mapping success"
+		errJson := &Error{}
+		errJson.code = "400"
+		errJson.message = err.Error()
+		t.Data["json"] = errJson
+		return
 	} else {
 		matched, err := regexp.Match(`^t-\d+$`, []byte(team.GetTeamId()))
 		if err != nil || !matched {
@@ -144,6 +156,10 @@ func (t *TeamController) Post() {
 		err = sv.PutItem(&team)
 		if err != nil {
 			t.Ctx.ResponseWriter.WriteHeader(500)
+			errJson := &Error{}
+			errJson.code = "500"
+			errJson.message = err.Error()
+			t.Data["json"] = errJson
 			return
 		}
 		t.Ctx.ResponseWriter.WriteHeader(201)
@@ -164,12 +180,21 @@ func (t *TeamController) Put() {
 	err := json.Unmarshal(t.Ctx.Input.RequestBody, &team)
 	if err != nil || strings.Compare(team.GetTeamId(), t.GetString(":uid")) != 0 {
 		t.Ctx.ResponseWriter.WriteHeader(400)
+		errJson := &Error{}
+		errJson.code = "400"
+		errJson.message = err.Error()
+		t.Data["json"] = errJson
 	} else {
 		sv := &models.TeamClient{}
 		_, err1 := sv.GetItemById(team.GetTeamId())
 		err2 := sv.PutItem(team)
 		if err2 != nil {
 			t.Ctx.ResponseWriter.WriteHeader(500)
+			errJson := &Error{}
+			errJson.code = "500"
+			errJson.message = err.Error()
+			t.Data["json"] = errJson
+			return
 		} else if err1 != nil {
 			t.Ctx.ResponseWriter.WriteHeader(201)
 			t.Ctx.ResponseWriter.Header().Set("location", fmt.Sprintf("%s/%s/%s", t.Ctx.Input.Host(), t.Ctx.Input.URL(), team.GetTeamId()))
@@ -192,10 +217,20 @@ func (t *TeamController) Delete() {
 	_, err := sv.GetItemById(uid)
 	if err != nil {
 		t.Ctx.ResponseWriter.WriteHeader(404)
+		errJson := &Error{}
+		errJson.code = "404"
+		errJson.message = err.Error()
+		t.Data["json"] = errJson
+		return
 	} else {
 		err = sv.RemoveItem(uid)
 		if err != nil {
 			t.Ctx.ResponseWriter.WriteHeader(500)
+			errJson := &Error{}
+			errJson.code = "500"
+			errJson.message = err.Error()
+			t.Data["json"] = errJson
+			return
 		}
 		t.Ctx.ResponseWriter.WriteHeader(204)
 	}
