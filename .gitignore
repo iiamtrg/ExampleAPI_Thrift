@@ -21,3 +21,7 @@ swagger/
 /src/ExampleAPI_Thrift/.idea/
 /src/server/.idea/
 ./vscode
+
+lastupdate.tmp
+ExampleAPI_Thrift
+main
