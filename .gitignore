@@ -23,3 +23,5 @@ swagger/
 ./vscode
 
 lastupdate.tmp
+ExampleAPI_Thrift
+main

@@ -34,6 +34,11 @@ func (t *TeamController) Get() {
 		result, err := sv.GetItemsAll()
 		if err != nil {
 			t.Ctx.ResponseWriter.WriteHeader(500)
+			errJson := &Error{}
+			errJson.Code = "500"
+			errJson.Message = err.Error()
+			t.Data["json"] = errJson
+			return
 		} else {
 			t.Ctx.ResponseWriter.WriteHeader(200)
 			t.Data["json"] = result
@@ -42,11 +47,20 @@ func (t *TeamController) Get() {
 		offInt, err := strconv.Atoi(off)
 		if err != nil {
 			t.Ctx.ResponseWriter.WriteHeader(400)
+			errJson := &Error{}
+			errJson.Code = "400"
+			errJson.Message = err.Error()
+			t.Data["json"] = errJson
 			return
 		}
 		result, err := sv.GetItemsPagination(int32(offInt), 0)
 		if err != nil {
 			t.Ctx.ResponseWriter.WriteHeader(500)
+			errJson := &Error{}
+			errJson.Code = "500"
+			errJson.Message = err.Error()
+			t.Data["json"] = errJson
+			return
 		}
 		t.Data["json"] = result
 		return
@@ -54,11 +68,20 @@ func (t *TeamController) Get() {
 		limitInt, err := strconv.Atoi(limit)
 		if err != nil {
 			t.Ctx.ResponseWriter.WriteHeader(400)
+			errJson := &Error{}
+			errJson.Code = "500"
+			errJson.Message = err.Error()
+			t.Data["json"] = errJson
 			return
 		}
 		result, err := sv.GetItemsPagination(0, int32(limitInt))
 		if err != nil {
 			t.Ctx.ResponseWriter.WriteHeader(500)
+			errJson := &Error{}
+			errJson.Code = "500"
+			errJson.Message = err.Error()
+			t.Data["json"] = errJson
+			return
 		}
 		t.Data["json"] = result
 		return
@@ -66,16 +89,29 @@ func (t *TeamController) Get() {
 		offInt, err := strconv.Atoi(off)
 		if err != nil {
 			t.Ctx.ResponseWriter.WriteHeader(400)
+			errJson := &Error{}
+			errJson.Code = "400"
+			errJson.Message = err.Error()
+			t.Data["json"] = errJson
 			return
 		}
 		limitInt, err := strconv.Atoi(limit)
 		if err != nil {
 			t.Ctx.ResponseWriter.WriteHeader(400)
+			errJson := &Error{}
+			errJson.Code = "400"
+			errJson.Message = err.Error()
+			t.Data["json"] = errJson
 			return
 		}
 		result, err := sv.GetItemsPagination(int32(offInt), int32(limitInt))
 		if err != nil {
 			t.Ctx.ResponseWriter.WriteHeader(500)
+			errJson := &Error{}
+			errJson.Code = "500"
+			errJson.Message = err.Error()
+			t.Data["json"] = errJson
+			return
 		}
 		t.Data["json"] = result
 		return
@@ -95,7 +131,11 @@ func (t *TeamController) GetById() {
 	result, err := sv.GetItemById(t.GetString(":uid"))
 	if err != nil {
 		t.Ctx.ResponseWriter.WriteHeader(404)
-		t.Data["json"] = "id is not existed"
+		errJson := &Error{}
+		errJson.Code = "404"
+		errJson.Message = err.Error()
+		t.Data["json"] = errJson
+		return
 	}
 	t.Data["json"] = result
 }
@@ -113,6 +153,10 @@ func (t *TeamController) GetPersonTeam() {
 	result, err := sv.GetPersonTeam(uid)
 	if err != nil {
 		t.Ctx.ResponseWriter.WriteHeader(404)
+		errJson := &Error{}
+		errJson.Code = "404"
+		errJson.Message = err.Error()
+		t.Data["json"] = errJson
 		return
 	}
 	t.Data["json"] = result
@@ -129,14 +173,18 @@ func (t *TeamController) Post() {
 	err := json.Unmarshal(t.Ctx.Input.RequestBody, &team)
 	if err != nil {
 		t.Ctx.ResponseWriter.WriteHeader(400)
-		t.Data["json"] = "data is not mapping success"
+		errJson := &Error{}
+		errJson.Code = "400"
+		errJson.Message = err.Error()
+		t.Data["json"] = errJson
+		return
 	} else {
 		matched, err := regexp.Match(`^t-\d+$`, []byte(team.GetTeamId()))
 		if err != nil || !matched {
 			t.Ctx.ResponseWriter.WriteHeader(400)
 			obj := make(map[string]string, 0)
-			obj["code"] = "400"
-			obj["message"] = "teamID is not valid. Pattern: t-[0-9]+"
+			obj["Code"] = "400"
+			obj["Message"] = "teamID is not valid. Pattern: t-[0-9]+"
 			t.Data["json"] = obj
 			return
 		}
@@ -144,6 +192,10 @@ func (t *TeamController) Post() {
 		err = sv.PutItem(&team)
 		if err != nil {
 			t.Ctx.ResponseWriter.WriteHeader(500)
+			errJson := &Error{}
+			errJson.Code = "500"
+			errJson.Message = err.Error()
+			t.Data["json"] = errJson
 			return
 		}
 		t.Ctx.ResponseWriter.WriteHeader(201)
@@ -164,12 +216,21 @@ func (t *TeamController) Put() {
 	err := json.Unmarshal(t.Ctx.Input.RequestBody, &team)
 	if err != nil || strings.Compare(team.GetTeamId(), t.GetString(":uid")) != 0 {
 		t.Ctx.ResponseWriter.WriteHeader(400)
+		errJson := &Error{}
+		errJson.Code = "400"
+		errJson.Message = err.Error()
+		t.Data["json"] = errJson
 	} else {
 		sv := &models.TeamClient{}
 		_, err1 := sv.GetItemById(team.GetTeamId())
 		err2 := sv.PutItem(team)
 		if err2 != nil {
 			t.Ctx.ResponseWriter.WriteHeader(500)
+			errJson := &Error{}
+			errJson.Code = "500"
+			errJson.Message = err.Error()
+			t.Data["json"] = errJson
+			return
 		} else if err1 != nil {
 			t.Ctx.ResponseWriter.WriteHeader(201)
 			t.Ctx.ResponseWriter.Header().Set("location", fmt.Sprintf("%s/%s/%s", t.Ctx.Input.Host(), t.Ctx.Input.URL(), team.GetTeamId()))
@@ -192,10 +253,20 @@ func (t *TeamController) Delete() {
 	_, err := sv.GetItemById(uid)
 	if err != nil {
 		t.Ctx.ResponseWriter.WriteHeader(404)
+		errJson := &Error{}
+		errJson.Code = "404"
+		errJson.Message = err.Error()
+		t.Data["json"] = errJson
+		return
 	} else {
 		err = sv.RemoveItem(uid)
 		if err != nil {
 			t.Ctx.ResponseWriter.WriteHeader(500)
+			errJson := &Error{}
+			errJson.Code = "500"
+			errJson.Message = err.Error()
+			t.Data["json"] = errJson
+			return
 		}
 		t.Ctx.ResponseWriter.WriteHeader(204)
 	}
