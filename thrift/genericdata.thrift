@@ -52,7 +52,7 @@ service TGenericService {
 
     TPeronSetResult getPersonsPagination(1: string bsKey, 2: i32 offset, 3: i32 limit)
 
-    TPeronSetResult getPersonsOfTeam(1: string bsKey, 2: string bsKeyPerson),
+    TPeronSetResult getPersonsOfTeam(1: string bsKey),
 
     TTeamResult getItemTeam(1: string bsKey, 2: string rootID),
 
@@ -60,7 +60,7 @@ service TGenericService {
 
     TTeamSetResult getTeamsPagination(1: string bsKey, 2: i32 offset, 3: i32 limit)
 
-    TTeamResult getPersonIsTeam(1: string bsKey, 2: string bsKeyTeam),
+    TTeamResult getPersonIsTeam(1: string bsKey),
 
     void putItemPerson(1: string bsKey, 2: TPerson item),
 
@@ -70,11 +70,8 @@ service TGenericService {
 
     void putPersonToTeam(1: string bsKey, 2: string personId)
 
-    void putMultiPersonsToTeam(1: string bsKey, 2: list<string> personIds),
-
     bool itemIsExist(1: string bsKey, 2: string rootID),
 
     void removeItem(1: string bsKey, 2: string rootID),
 
-    void removeAll(1: string bsKey)
 }

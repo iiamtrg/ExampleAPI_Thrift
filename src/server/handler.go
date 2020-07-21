@@ -12,6 +12,9 @@ import (
 	"github.com/OpenStars/EtcdBackendService/StringBigsetService/bigset/thrift/gen-go/openstars/core/bigset/generic"
 )
 
+const BS_PERSON = "Person"
+const BS_Team = "Team"
+
 type GenericServiceHandler struct {
 	myGeneric.TGenericService
 }
@@ -112,7 +115,7 @@ func (this *GenericServiceHandler) GetPersonsPagination(ctx context.Context, bsK
 	return r, nil
 }
 
-func (this *GenericServiceHandler) GetPersonsOfTeam(ctx context.Context, bsKey string, bsKeyPerson string) (*myGeneric.TPeronSetResult_, error) {
+func (this *GenericServiceHandler) GetPersonsOfTeam(ctx context.Context, bsKey string) (*myGeneric.TPeronSetResult_, error) {
 
 	_ = ctx
 	count, err := bigsetIf.GetTotalCount(this.GetBsKey(bsKey))
@@ -127,7 +130,7 @@ func (this *GenericServiceHandler) GetPersonsOfTeam(ctx context.Context, bsKey s
 	}
 	arrayTemp := make([]*myGeneric.TPerson, 0)
 	for _, v := range slice {
-		bPerson, err := this.GetItemPerson(ctx, bsKeyPerson, string(v.GetKey()))
+		bPerson, err := this.GetItemPerson(ctx, BS_PERSON, string(v.GetKey()))
 		if err != nil {
 			log.Println(err, "bigset error: ")
 		} else {
@@ -210,7 +213,7 @@ func (this *GenericServiceHandler) GetItemTeam(ctx context.Context, bsKey string
 	return r, nil
 }
 
-func (this *GenericServiceHandler) GetPersonIsTeam(ctx context.Context, bsKey string, bsKeyTeam string) (*myGeneric.TTeamResult_, error) {
+func (this *GenericServiceHandler) GetPersonIsTeam(ctx context.Context, bsKey string) (*myGeneric.TTeamResult_, error) {
 
 	_ = ctx
 	slice, err := bigsetIf.BsGetSliceR(this.GetBsKey(bsKey), 0, 1)
@@ -219,7 +222,7 @@ func (this *GenericServiceHandler) GetPersonIsTeam(ctx context.Context, bsKey st
 		return nil, err
 	}
 	if slice != nil {
-		team, err := this.GetItemTeam(ctx, bsKeyTeam, string(slice[0].GetKey()))
+		team, err := this.GetItemTeam(ctx, BS_Team, string(slice[0].GetKey()))
 		if err != nil {
 			log.Println(err, "bigset error:")
 			return nil, err
@@ -323,24 +326,24 @@ func (this *GenericServiceHandler) PutPersonToTeam(ctx context.Context, bsKey st
 	return nil
 }
 
-func (this *GenericServiceHandler) PutMultiPersonsToTeam(ctx context.Context, bsKey string, personIds []string) error {
+// func (this *GenericServiceHandler) PutMultiPersonsToTeam(ctx context.Context, bsKey string, personIds []string) error {
 
-	_ = ctx
-	// add person to team
-	bTime, err := helps.MarshalBytes(time.Now().Format("2006-01-02"))
-	if err != nil {
-		log.Println(err, "format time error")
-		return err
-	}
-	items := make([]*generic.TItem, 0)
-	for _, v := range personIds {
-		items = append(items, &generic.TItem{
-			Key:   []byte(v),
-			Value: bTime,
-		})
-	}
-	return bigsetIf.BsMultiPut(this.GetBsKey(bsKey), items)
-}
+// 	_ = ctx
+// 	// add person to team
+// 	bTime, err := helps.MarshalBytes(time.Now().Format("2006-01-02"))
+// 	if err != nil {
+// 		log.Println(err, "format time error")
+// 		return err
+// 	}
+// 	items := make([]*generic.TItem, 0)
+// 	for _, v := range personIds {
+// 		items = append(items, &generic.TItem{
+// 			Key:   []byte(v),
+// 			Value: bTime,
+// 		})
+// 	}
+// 	return bigsetIf.BsMultiPut(this.GetBsKey(bsKey), items)
+// }
 
 func (this *GenericServiceHandler) RemoveItem(ctx context.Context, bsKey string, rooID string) error {
 
@@ -353,13 +356,13 @@ func (this *GenericServiceHandler) RemoveItem(ctx context.Context, bsKey string,
 
 }
 
-func (this *GenericServiceHandler) RemoveAll(ctx context.Context, bsKey string) error {
+// func (this *GenericServiceHandler) RemoveAll(ctx context.Context, bsKey string) error {
 
-	_ = ctx
-	err := bigsetIf.RemoveAll(this.GetBsKey(bsKey))
-	if err != nil {
-		log.Printf("can not remove bigset of %s", bsKey)
-	}
-	return nil
+// 	_ = ctx
+// 	err := bigsetIf.RemoveAll(this.GetBsKey(bsKey))
+// 	if err != nil {
+// 		log.Printf("can not remove bigset of %s", bsKey)
+// 	}
+// 	return nil
 
-}
+// }

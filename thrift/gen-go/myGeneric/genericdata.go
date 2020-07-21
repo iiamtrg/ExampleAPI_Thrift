@@ -1095,8 +1095,7 @@ type TGenericService interface {
   GetPersonsPagination(ctx context.Context, bsKey string, offset int32, limit int32) (r *TPeronSetResult_, err error)
   // Parameters:
   //  - BsKey
-  //  - BsKeyPerson
-  GetPersonsOfTeam(ctx context.Context, bsKey string, bsKeyPerson string) (r *TPeronSetResult_, err error)
+  GetPersonsOfTeam(ctx context.Context, bsKey string) (r *TPeronSetResult_, err error)
   // Parameters:
   //  - BsKey
   //  - RootID
@@ -1111,8 +1110,7 @@ type TGenericService interface {
   GetTeamsPagination(ctx context.Context, bsKey string, offset int32, limit int32) (r *TTeamSetResult_, err error)
   // Parameters:
   //  - BsKey
-  //  - BsKeyTeam
-  GetPersonIsTeam(ctx context.Context, bsKey string, bsKeyTeam string) (r *TTeamResult_, err error)
+  GetPersonIsTeam(ctx context.Context, bsKey string) (r *TTeamResult_, err error)
   // Parameters:
   //  - BsKey
   //  - Item
@@ -1131,19 +1129,12 @@ type TGenericService interface {
   PutPersonToTeam(ctx context.Context, bsKey string, personId string) (err error)
   // Parameters:
   //  - BsKey
-  //  - PersonIds
-  PutMultiPersonsToTeam(ctx context.Context, bsKey string, personIds []string) (err error)
-  // Parameters:
-  //  - BsKey
   //  - RootID
   ItemIsExist(ctx context.Context, bsKey string, rootID string) (r bool, err error)
   // Parameters:
   //  - BsKey
   //  - RootID
   RemoveItem(ctx context.Context, bsKey string, rootID string) (err error)
-  // Parameters:
-  //  - BsKey
-  RemoveAll(ctx context.Context, bsKey string) (err error)
 }
 
 type TGenericServiceClient struct {
@@ -1215,11 +1206,9 @@ func (p *TGenericServiceClient) GetPersonsPagination(ctx context.Context, bsKey 
 
 // Parameters:
 //  - BsKey
-//  - BsKeyPerson
-func (p *TGenericServiceClient) GetPersonsOfTeam(ctx context.Context, bsKey string, bsKeyPerson string) (r *TPeronSetResult_, err error) {
+func (p *TGenericServiceClient) GetPersonsOfTeam(ctx context.Context, bsKey string) (r *TPeronSetResult_, err error) {
   var _args8 TGenericServiceGetPersonsOfTeamArgs
   _args8.BsKey = bsKey
-  _args8.BsKeyPerson = bsKeyPerson
   var _result9 TGenericServiceGetPersonsOfTeamResult
   if err = p.Client_().Call(ctx, "getPersonsOfTeam", &_args8, &_result9); err != nil {
     return
@@ -1271,11 +1260,9 @@ func (p *TGenericServiceClient) GetTeamsPagination(ctx context.Context, bsKey st
 
 // Parameters:
 //  - BsKey
-//  - BsKeyTeam
-func (p *TGenericServiceClient) GetPersonIsTeam(ctx context.Context, bsKey string, bsKeyTeam string) (r *TTeamResult_, err error) {
+func (p *TGenericServiceClient) GetPersonIsTeam(ctx context.Context, bsKey string) (r *TTeamResult_, err error) {
   var _args16 TGenericServiceGetPersonIsTeamArgs
   _args16.BsKey = bsKey
-  _args16.BsKeyTeam = bsKeyTeam
   var _result17 TGenericServiceGetPersonIsTeamResult
   if err = p.Client_().Call(ctx, "getPersonIsTeam", &_args16, &_result17); err != nil {
     return
@@ -1341,53 +1328,27 @@ func (p *TGenericServiceClient) PutPersonToTeam(ctx context.Context, bsKey strin
 
 // Parameters:
 //  - BsKey
-//  - PersonIds
-func (p *TGenericServiceClient) PutMultiPersonsToTeam(ctx context.Context, bsKey string, personIds []string) (err error) {
-  var _args26 TGenericServicePutMultiPersonsToTeamArgs
-  _args26.BsKey = bsKey
-  _args26.PersonIds = personIds
-  var _result27 TGenericServicePutMultiPersonsToTeamResult
-  if err = p.Client_().Call(ctx, "putMultiPersonsToTeam", &_args26, &_result27); err != nil {
-    return
-  }
-  return nil
-}
-
-// Parameters:
-//  - BsKey
 //  - RootID
 func (p *TGenericServiceClient) ItemIsExist(ctx context.Context, bsKey string, rootID string) (r bool, err error) {
-  var _args28 TGenericServiceItemIsExistArgs
-  _args28.BsKey = bsKey
-  _args28.RootID = rootID
-  var _result29 TGenericServiceItemIsExistResult
-  if err = p.Client_().Call(ctx, "itemIsExist", &_args28, &_result29); err != nil {
+  var _args26 TGenericServiceItemIsExistArgs
+  _args26.BsKey = bsKey
+  _args26.RootID = rootID
+  var _result27 TGenericServiceItemIsExistResult
+  if err = p.Client_().Call(ctx, "itemIsExist", &_args26, &_result27); err != nil {
     return
   }
-  return _result29.GetSuccess(), nil
+  return _result27.GetSuccess(), nil
 }
 
 // Parameters:
 //  - BsKey
 //  - RootID
 func (p *TGenericServiceClient) RemoveItem(ctx context.Context, bsKey string, rootID string) (err error) {
-  var _args30 TGenericServiceRemoveItemArgs
-  _args30.BsKey = bsKey
-  _args30.RootID = rootID
-  var _result31 TGenericServiceRemoveItemResult
-  if err = p.Client_().Call(ctx, "removeItem", &_args30, &_result31); err != nil {
-    return
-  }
-  return nil
-}
-
-// Parameters:
-//  - BsKey
-func (p *TGenericServiceClient) RemoveAll(ctx context.Context, bsKey string) (err error) {
-  var _args32 TGenericServiceRemoveAllArgs
-  _args32.BsKey = bsKey
-  var _result33 TGenericServiceRemoveAllResult
-  if err = p.Client_().Call(ctx, "removeAll", &_args32, &_result33); err != nil {
+  var _args28 TGenericServiceRemoveItemArgs
+  _args28.BsKey = bsKey
+  _args28.RootID = rootID
+  var _result29 TGenericServiceRemoveItemResult
+  if err = p.Client_().Call(ctx, "removeItem", &_args28, &_result29); err != nil {
     return
   }
   return nil
@@ -1413,24 +1374,22 @@ func (p *TGenericServiceProcessor) ProcessorMap() map[string]thrift.TProcessorFu
 
 func NewTGenericServiceProcessor(handler TGenericService) *TGenericServiceProcessor {
 
-  self34 := &TGenericServiceProcessor{handler:handler, processorMap:make(map[string]thrift.TProcessorFunction)}
-  self34.processorMap["getItemPerson"] = &tGenericServiceProcessorGetItemPerson{handler:handler}
-  self34.processorMap["getItemsPerson"] = &tGenericServiceProcessorGetItemsPerson{handler:handler}
-  self34.processorMap["getPersonsPagination"] = &tGenericServiceProcessorGetPersonsPagination{handler:handler}
-  self34.processorMap["getPersonsOfTeam"] = &tGenericServiceProcessorGetPersonsOfTeam{handler:handler}
-  self34.processorMap["getItemTeam"] = &tGenericServiceProcessorGetItemTeam{handler:handler}
-  self34.processorMap["getItemsTeam"] = &tGenericServiceProcessorGetItemsTeam{handler:handler}
-  self34.processorMap["getTeamsPagination"] = &tGenericServiceProcessorGetTeamsPagination{handler:handler}
-  self34.processorMap["getPersonIsTeam"] = &tGenericServiceProcessorGetPersonIsTeam{handler:handler}
-  self34.processorMap["putItemPerson"] = &tGenericServiceProcessorPutItemPerson{handler:handler}
-  self34.processorMap["putPersonIsTeam"] = &tGenericServiceProcessorPutPersonIsTeam{handler:handler}
-  self34.processorMap["putItemTeam"] = &tGenericServiceProcessorPutItemTeam{handler:handler}
-  self34.processorMap["putPersonToTeam"] = &tGenericServiceProcessorPutPersonToTeam{handler:handler}
-  self34.processorMap["putMultiPersonsToTeam"] = &tGenericServiceProcessorPutMultiPersonsToTeam{handler:handler}
-  self34.processorMap["itemIsExist"] = &tGenericServiceProcessorItemIsExist{handler:handler}
-  self34.processorMap["removeItem"] = &tGenericServiceProcessorRemoveItem{handler:handler}
-  self34.processorMap["removeAll"] = &tGenericServiceProcessorRemoveAll{handler:handler}
-return self34
+  self30 := &TGenericServiceProcessor{handler:handler, processorMap:make(map[string]thrift.TProcessorFunction)}
+  self30.processorMap["getItemPerson"] = &tGenericServiceProcessorGetItemPerson{handler:handler}
+  self30.processorMap["getItemsPerson"] = &tGenericServiceProcessorGetItemsPerson{handler:handler}
+  self30.processorMap["getPersonsPagination"] = &tGenericServiceProcessorGetPersonsPagination{handler:handler}
+  self30.processorMap["getPersonsOfTeam"] = &tGenericServiceProcessorGetPersonsOfTeam{handler:handler}
+  self30.processorMap["getItemTeam"] = &tGenericServiceProcessorGetItemTeam{handler:handler}
+  self30.processorMap["getItemsTeam"] = &tGenericServiceProcessorGetItemsTeam{handler:handler}
+  self30.processorMap["getTeamsPagination"] = &tGenericServiceProcessorGetTeamsPagination{handler:handler}
+  self30.processorMap["getPersonIsTeam"] = &tGenericServiceProcessorGetPersonIsTeam{handler:handler}
+  self30.processorMap["putItemPerson"] = &tGenericServiceProcessorPutItemPerson{handler:handler}
+  self30.processorMap["putPersonIsTeam"] = &tGenericServiceProcessorPutPersonIsTeam{handler:handler}
+  self30.processorMap["putItemTeam"] = &tGenericServiceProcessorPutItemTeam{handler:handler}
+  self30.processorMap["putPersonToTeam"] = &tGenericServiceProcessorPutPersonToTeam{handler:handler}
+  self30.processorMap["itemIsExist"] = &tGenericServiceProcessorItemIsExist{handler:handler}
+  self30.processorMap["removeItem"] = &tGenericServiceProcessorRemoveItem{handler:handler}
+return self30
 }
 
 func (p *TGenericServiceProcessor) Process(ctx context.Context, iprot, oprot thrift.TProtocol) (success bool, err thrift.TException) {
@@ -1441,12 +1400,12 @@ func (p *TGenericServiceProcessor) Process(ctx context.Context, iprot, oprot thr
   }
   iprot.Skip(thrift.STRUCT)
   iprot.ReadMessageEnd()
-  x35 := thrift.NewTApplicationException(thrift.UNKNOWN_METHOD, "Unknown function " + name)
+  x31 := thrift.NewTApplicationException(thrift.UNKNOWN_METHOD, "Unknown function " + name)
   oprot.WriteMessageBegin(name, thrift.EXCEPTION, seqId)
-  x35.Write(oprot)
+  x31.Write(oprot)
   oprot.WriteMessageEnd()
   oprot.Flush(ctx)
-  return false, x35
+  return false, x31
 
 }
 
@@ -1614,7 +1573,7 @@ func (p *tGenericServiceProcessorGetPersonsOfTeam) Process(ctx context.Context, 
   result := TGenericServiceGetPersonsOfTeamResult{}
 var retval *TPeronSetResult_
   var err2 error
-  if retval, err2 = p.handler.GetPersonsOfTeam(ctx, args.BsKey, args.BsKeyPerson); err2 != nil {
+  if retval, err2 = p.handler.GetPersonsOfTeam(ctx, args.BsKey); err2 != nil {
     x := thrift.NewTApplicationException(thrift.INTERNAL_ERROR, "Internal error processing getPersonsOfTeam: " + err2.Error())
     oprot.WriteMessageBegin("getPersonsOfTeam", thrift.EXCEPTION, seqId)
     x.Write(oprot)
@@ -1806,7 +1765,7 @@ func (p *tGenericServiceProcessorGetPersonIsTeam) Process(ctx context.Context, s
   result := TGenericServiceGetPersonIsTeamResult{}
 var retval *TTeamResult_
   var err2 error
-  if retval, err2 = p.handler.GetPersonIsTeam(ctx, args.BsKey, args.BsKeyTeam); err2 != nil {
+  if retval, err2 = p.handler.GetPersonIsTeam(ctx, args.BsKey); err2 != nil {
     x := thrift.NewTApplicationException(thrift.INTERNAL_ERROR, "Internal error processing getPersonIsTeam: " + err2.Error())
     oprot.WriteMessageBegin("getPersonIsTeam", thrift.EXCEPTION, seqId)
     x.Write(oprot)
@@ -2014,51 +1973,6 @@ func (p *tGenericServiceProcessorPutPersonToTeam) Process(ctx context.Context, s
   return true, err
 }
 
-type tGenericServiceProcessorPutMultiPersonsToTeam struct {
-  handler TGenericService
-}
-
-func (p *tGenericServiceProcessorPutMultiPersonsToTeam) Process(ctx context.Context, seqId int32, iprot, oprot thrift.TProtocol) (success bool, err thrift.TException) {
-  args := TGenericServicePutMultiPersonsToTeamArgs{}
-  if err = args.Read(iprot); err != nil {
-    iprot.ReadMessageEnd()
-    x := thrift.NewTApplicationException(thrift.PROTOCOL_ERROR, err.Error())
-    oprot.WriteMessageBegin("putMultiPersonsToTeam", thrift.EXCEPTION, seqId)
-    x.Write(oprot)
-    oprot.WriteMessageEnd()
-    oprot.Flush(ctx)
-    return false, err
-  }
-
-  iprot.ReadMessageEnd()
-  result := TGenericServicePutMultiPersonsToTeamResult{}
-  var err2 error
-  if err2 = p.handler.PutMultiPersonsToTeam(ctx, args.BsKey, args.PersonIds); err2 != nil {
-    x := thrift.NewTApplicationException(thrift.INTERNAL_ERROR, "Internal error processing putMultiPersonsToTeam: " + err2.Error())
-    oprot.WriteMessageBegin("putMultiPersonsToTeam", thrift.EXCEPTION, seqId)
-    x.Write(oprot)
-    oprot.WriteMessageEnd()
-    oprot.Flush(ctx)
-    return true, err2
-  }
-  if err2 = oprot.WriteMessageBegin("putMultiPersonsToTeam", thrift.REPLY, seqId); err2 != nil {
-    err = err2
-  }
-  if err2 = result.Write(oprot); err == nil && err2 != nil {
-    err = err2
-  }
-  if err2 = oprot.WriteMessageEnd(); err == nil && err2 != nil {
-    err = err2
-  }
-  if err2 = oprot.Flush(ctx); err == nil && err2 != nil {
-    err = err2
-  }
-  if err != nil {
-    return
-  }
-  return true, err
-}
-
 type tGenericServiceProcessorItemIsExist struct {
   handler TGenericService
 }
@@ -2135,51 +2049,6 @@ func (p *tGenericServiceProcessorRemoveItem) Process(ctx context.Context, seqId 
     return true, err2
   }
   if err2 = oprot.WriteMessageBegin("removeItem", thrift.REPLY, seqId); err2 != nil {
-    err = err2
-  }
-  if err2 = result.Write(oprot); err == nil && err2 != nil {
-    err = err2
-  }
-  if err2 = oprot.WriteMessageEnd(); err == nil && err2 != nil {
-    err = err2
-  }
-  if err2 = oprot.Flush(ctx); err == nil && err2 != nil {
-    err = err2
-  }
-  if err != nil {
-    return
-  }
-  return true, err
-}
-
-type tGenericServiceProcessorRemoveAll struct {
-  handler TGenericService
-}
-
-func (p *tGenericServiceProcessorRemoveAll) Process(ctx context.Context, seqId int32, iprot, oprot thrift.TProtocol) (success bool, err thrift.TException) {
-  args := TGenericServiceRemoveAllArgs{}
-  if err = args.Read(iprot); err != nil {
-    iprot.ReadMessageEnd()
-    x := thrift.NewTApplicationException(thrift.PROTOCOL_ERROR, err.Error())
-    oprot.WriteMessageBegin("removeAll", thrift.EXCEPTION, seqId)
-    x.Write(oprot)
-    oprot.WriteMessageEnd()
-    oprot.Flush(ctx)
-    return false, err
-  }
-
-  iprot.ReadMessageEnd()
-  result := TGenericServiceRemoveAllResult{}
-  var err2 error
-  if err2 = p.handler.RemoveAll(ctx, args.BsKey); err2 != nil {
-    x := thrift.NewTApplicationException(thrift.INTERNAL_ERROR, "Internal error processing removeAll: " + err2.Error())
-    oprot.WriteMessageBegin("removeAll", thrift.EXCEPTION, seqId)
-    x.Write(oprot)
-    oprot.WriteMessageEnd()
-    oprot.Flush(ctx)
-    return true, err2
-  }
-  if err2 = oprot.WriteMessageBegin("removeAll", thrift.REPLY, seqId); err2 != nil {
     err = err2
   }
   if err2 = result.Write(oprot); err == nil && err2 != nil {
@@ -2883,10 +2752,8 @@ func (p *TGenericServiceGetPersonsPaginationResult) String() string {
 
 // Attributes:
 //  - BsKey
-//  - BsKeyPerson
 type TGenericServiceGetPersonsOfTeamArgs struct {
   BsKey string `thrift:"bsKey,1" db:"bsKey" json:"bsKey"`
-  BsKeyPerson string `thrift:"bsKeyPerson,2" db:"bsKeyPerson" json:"bsKeyPerson"`
 }
 
 func NewTGenericServiceGetPersonsOfTeamArgs() *TGenericServiceGetPersonsOfTeamArgs {
@@ -2896,10 +2763,6 @@ func NewTGenericServiceGetPersonsOfTeamArgs() *TGenericServiceGetPersonsOfTeamAr
 
 func (p *TGenericServiceGetPersonsOfTeamArgs) GetBsKey() string {
   return p.BsKey
-}
-
-func (p *TGenericServiceGetPersonsOfTeamArgs) GetBsKeyPerson() string {
-  return p.BsKeyPerson
 }
 func (p *TGenericServiceGetPersonsOfTeamArgs) Read(iprot thrift.TProtocol) error {
   if _, err := iprot.ReadStructBegin(); err != nil {
@@ -2917,16 +2780,6 @@ func (p *TGenericServiceGetPersonsOfTeamArgs) Read(iprot thrift.TProtocol) error
     case 1:
       if fieldTypeId == thrift.STRING {
         if err := p.ReadField1(iprot); err != nil {
-          return err
-        }
-      } else {
-        if err := iprot.Skip(fieldTypeId); err != nil {
-          return err
-        }
-      }
-    case 2:
-      if fieldTypeId == thrift.STRING {
-        if err := p.ReadField2(iprot); err != nil {
           return err
         }
       } else {
@@ -2958,21 +2811,11 @@ func (p *TGenericServiceGetPersonsOfTeamArgs)  ReadField1(iprot thrift.TProtocol
   return nil
 }
 
-func (p *TGenericServiceGetPersonsOfTeamArgs)  ReadField2(iprot thrift.TProtocol) error {
-  if v, err := iprot.ReadString(); err != nil {
-  return thrift.PrependError("error reading field 2: ", err)
-} else {
-  p.BsKeyPerson = v
-}
-  return nil
-}
-
 func (p *TGenericServiceGetPersonsOfTeamArgs) Write(oprot thrift.TProtocol) error {
   if err := oprot.WriteStructBegin("getPersonsOfTeam_args"); err != nil {
     return thrift.PrependError(fmt.Sprintf("%T write struct begin error: ", p), err) }
   if p != nil {
     if err := p.writeField1(oprot); err != nil { return err }
-    if err := p.writeField2(oprot); err != nil { return err }
   }
   if err := oprot.WriteFieldStop(); err != nil {
     return thrift.PrependError("write field stop error: ", err) }
@@ -2988,16 +2831,6 @@ func (p *TGenericServiceGetPersonsOfTeamArgs) writeField1(oprot thrift.TProtocol
   return thrift.PrependError(fmt.Sprintf("%T.bsKey (1) field write error: ", p), err) }
   if err := oprot.WriteFieldEnd(); err != nil {
     return thrift.PrependError(fmt.Sprintf("%T write field end error 1:bsKey: ", p), err) }
-  return err
-}
-
-func (p *TGenericServiceGetPersonsOfTeamArgs) writeField2(oprot thrift.TProtocol) (err error) {
-  if err := oprot.WriteFieldBegin("bsKeyPerson", thrift.STRING, 2); err != nil {
-    return thrift.PrependError(fmt.Sprintf("%T write field begin error 2:bsKeyPerson: ", p), err) }
-  if err := oprot.WriteString(string(p.BsKeyPerson)); err != nil {
-  return thrift.PrependError(fmt.Sprintf("%T.bsKeyPerson (2) field write error: ", p), err) }
-  if err := oprot.WriteFieldEnd(); err != nil {
-    return thrift.PrependError(fmt.Sprintf("%T write field end error 2:bsKeyPerson: ", p), err) }
   return err
 }
 
@@ -3791,10 +3624,8 @@ func (p *TGenericServiceGetTeamsPaginationResult) String() string {
 
 // Attributes:
 //  - BsKey
-//  - BsKeyTeam
 type TGenericServiceGetPersonIsTeamArgs struct {
   BsKey string `thrift:"bsKey,1" db:"bsKey" json:"bsKey"`
-  BsKeyTeam string `thrift:"bsKeyTeam,2" db:"bsKeyTeam" json:"bsKeyTeam"`
 }
 
 func NewTGenericServiceGetPersonIsTeamArgs() *TGenericServiceGetPersonIsTeamArgs {
@@ -3804,10 +3635,6 @@ func NewTGenericServiceGetPersonIsTeamArgs() *TGenericServiceGetPersonIsTeamArgs
 
 func (p *TGenericServiceGetPersonIsTeamArgs) GetBsKey() string {
   return p.BsKey
-}
-
-func (p *TGenericServiceGetPersonIsTeamArgs) GetBsKeyTeam() string {
-  return p.BsKeyTeam
 }
 func (p *TGenericServiceGetPersonIsTeamArgs) Read(iprot thrift.TProtocol) error {
   if _, err := iprot.ReadStructBegin(); err != nil {
@@ -3825,16 +3652,6 @@ func (p *TGenericServiceGetPersonIsTeamArgs) Read(iprot thrift.TProtocol) error 
     case 1:
       if fieldTypeId == thrift.STRING {
         if err := p.ReadField1(iprot); err != nil {
-          return err
-        }
-      } else {
-        if err := iprot.Skip(fieldTypeId); err != nil {
-          return err
-        }
-      }
-    case 2:
-      if fieldTypeId == thrift.STRING {
-        if err := p.ReadField2(iprot); err != nil {
           return err
         }
       } else {
@@ -3866,21 +3683,11 @@ func (p *TGenericServiceGetPersonIsTeamArgs)  ReadField1(iprot thrift.TProtocol)
   return nil
 }
 
-func (p *TGenericServiceGetPersonIsTeamArgs)  ReadField2(iprot thrift.TProtocol) error {
-  if v, err := iprot.ReadString(); err != nil {
-  return thrift.PrependError("error reading field 2: ", err)
-} else {
-  p.BsKeyTeam = v
-}
-  return nil
-}
-
 func (p *TGenericServiceGetPersonIsTeamArgs) Write(oprot thrift.TProtocol) error {
   if err := oprot.WriteStructBegin("getPersonIsTeam_args"); err != nil {
     return thrift.PrependError(fmt.Sprintf("%T write struct begin error: ", p), err) }
   if p != nil {
     if err := p.writeField1(oprot); err != nil { return err }
-    if err := p.writeField2(oprot); err != nil { return err }
   }
   if err := oprot.WriteFieldStop(); err != nil {
     return thrift.PrependError("write field stop error: ", err) }
@@ -3896,16 +3703,6 @@ func (p *TGenericServiceGetPersonIsTeamArgs) writeField1(oprot thrift.TProtocol)
   return thrift.PrependError(fmt.Sprintf("%T.bsKey (1) field write error: ", p), err) }
   if err := oprot.WriteFieldEnd(); err != nil {
     return thrift.PrependError(fmt.Sprintf("%T write field end error 1:bsKey: ", p), err) }
-  return err
-}
-
-func (p *TGenericServiceGetPersonIsTeamArgs) writeField2(oprot thrift.TProtocol) (err error) {
-  if err := oprot.WriteFieldBegin("bsKeyTeam", thrift.STRING, 2); err != nil {
-    return thrift.PrependError(fmt.Sprintf("%T write field begin error 2:bsKeyTeam: ", p), err) }
-  if err := oprot.WriteString(string(p.BsKeyTeam)); err != nil {
-  return thrift.PrependError(fmt.Sprintf("%T.bsKeyTeam (2) field write error: ", p), err) }
-  if err := oprot.WriteFieldEnd(); err != nil {
-    return thrift.PrependError(fmt.Sprintf("%T write field end error 2:bsKeyTeam: ", p), err) }
   return err
 }
 
@@ -4744,205 +4541,6 @@ func (p *TGenericServicePutPersonToTeamResult) String() string {
 
 // Attributes:
 //  - BsKey
-//  - PersonIds
-type TGenericServicePutMultiPersonsToTeamArgs struct {
-  BsKey string `thrift:"bsKey,1" db:"bsKey" json:"bsKey"`
-  PersonIds []string `thrift:"personIds,2" db:"personIds" json:"personIds"`
-}
-
-func NewTGenericServicePutMultiPersonsToTeamArgs() *TGenericServicePutMultiPersonsToTeamArgs {
-  return &TGenericServicePutMultiPersonsToTeamArgs{}
-}
-
-
-func (p *TGenericServicePutMultiPersonsToTeamArgs) GetBsKey() string {
-  return p.BsKey
-}
-
-func (p *TGenericServicePutMultiPersonsToTeamArgs) GetPersonIds() []string {
-  return p.PersonIds
-}
-func (p *TGenericServicePutMultiPersonsToTeamArgs) Read(iprot thrift.TProtocol) error {
-  if _, err := iprot.ReadStructBegin(); err != nil {
-    return thrift.PrependError(fmt.Sprintf("%T read error: ", p), err)
-  }
-
-
-  for {
-    _, fieldTypeId, fieldId, err := iprot.ReadFieldBegin()
-    if err != nil {
-      return thrift.PrependError(fmt.Sprintf("%T field %d read error: ", p, fieldId), err)
-    }
-    if fieldTypeId == thrift.STOP { break; }
-    switch fieldId {
-    case 1:
-      if fieldTypeId == thrift.STRING {
-        if err := p.ReadField1(iprot); err != nil {
-          return err
-        }
-      } else {
-        if err := iprot.Skip(fieldTypeId); err != nil {
-          return err
-        }
-      }
-    case 2:
-      if fieldTypeId == thrift.LIST {
-        if err := p.ReadField2(iprot); err != nil {
-          return err
-        }
-      } else {
-        if err := iprot.Skip(fieldTypeId); err != nil {
-          return err
-        }
-      }
-    default:
-      if err := iprot.Skip(fieldTypeId); err != nil {
-        return err
-      }
-    }
-    if err := iprot.ReadFieldEnd(); err != nil {
-      return err
-    }
-  }
-  if err := iprot.ReadStructEnd(); err != nil {
-    return thrift.PrependError(fmt.Sprintf("%T read struct end error: ", p), err)
-  }
-  return nil
-}
-
-func (p *TGenericServicePutMultiPersonsToTeamArgs)  ReadField1(iprot thrift.TProtocol) error {
-  if v, err := iprot.ReadString(); err != nil {
-  return thrift.PrependError("error reading field 1: ", err)
-} else {
-  p.BsKey = v
-}
-  return nil
-}
-
-func (p *TGenericServicePutMultiPersonsToTeamArgs)  ReadField2(iprot thrift.TProtocol) error {
-  _, size, err := iprot.ReadListBegin()
-  if err != nil {
-    return thrift.PrependError("error reading list begin: ", err)
-  }
-  tSlice := make([]string, 0, size)
-  p.PersonIds =  tSlice
-  for i := 0; i < size; i ++ {
-var _elem36 string
-    if v, err := iprot.ReadString(); err != nil {
-    return thrift.PrependError("error reading field 0: ", err)
-} else {
-    _elem36 = v
-}
-    p.PersonIds = append(p.PersonIds, _elem36)
-  }
-  if err := iprot.ReadListEnd(); err != nil {
-    return thrift.PrependError("error reading list end: ", err)
-  }
-  return nil
-}
-
-func (p *TGenericServicePutMultiPersonsToTeamArgs) Write(oprot thrift.TProtocol) error {
-  if err := oprot.WriteStructBegin("putMultiPersonsToTeam_args"); err != nil {
-    return thrift.PrependError(fmt.Sprintf("%T write struct begin error: ", p), err) }
-  if p != nil {
-    if err := p.writeField1(oprot); err != nil { return err }
-    if err := p.writeField2(oprot); err != nil { return err }
-  }
-  if err := oprot.WriteFieldStop(); err != nil {
-    return thrift.PrependError("write field stop error: ", err) }
-  if err := oprot.WriteStructEnd(); err != nil {
-    return thrift.PrependError("write struct stop error: ", err) }
-  return nil
-}
-
-func (p *TGenericServicePutMultiPersonsToTeamArgs) writeField1(oprot thrift.TProtocol) (err error) {
-  if err := oprot.WriteFieldBegin("bsKey", thrift.STRING, 1); err != nil {
-    return thrift.PrependError(fmt.Sprintf("%T write field begin error 1:bsKey: ", p), err) }
-  if err := oprot.WriteString(string(p.BsKey)); err != nil {
-  return thrift.PrependError(fmt.Sprintf("%T.bsKey (1) field write error: ", p), err) }
-  if err := oprot.WriteFieldEnd(); err != nil {
-    return thrift.PrependError(fmt.Sprintf("%T write field end error 1:bsKey: ", p), err) }
-  return err
-}
-
-func (p *TGenericServicePutMultiPersonsToTeamArgs) writeField2(oprot thrift.TProtocol) (err error) {
-  if err := oprot.WriteFieldBegin("personIds", thrift.LIST, 2); err != nil {
-    return thrift.PrependError(fmt.Sprintf("%T write field begin error 2:personIds: ", p), err) }
-  if err := oprot.WriteListBegin(thrift.STRING, len(p.PersonIds)); err != nil {
-    return thrift.PrependError("error writing list begin: ", err)
-  }
-  for _, v := range p.PersonIds {
-    if err := oprot.WriteString(string(v)); err != nil {
-    return thrift.PrependError(fmt.Sprintf("%T. (0) field write error: ", p), err) }
-  }
-  if err := oprot.WriteListEnd(); err != nil {
-    return thrift.PrependError("error writing list end: ", err)
-  }
-  if err := oprot.WriteFieldEnd(); err != nil {
-    return thrift.PrependError(fmt.Sprintf("%T write field end error 2:personIds: ", p), err) }
-  return err
-}
-
-func (p *TGenericServicePutMultiPersonsToTeamArgs) String() string {
-  if p == nil {
-    return "<nil>"
-  }
-  return fmt.Sprintf("TGenericServicePutMultiPersonsToTeamArgs(%+v)", *p)
-}
-
-type TGenericServicePutMultiPersonsToTeamResult struct {
-}
-
-func NewTGenericServicePutMultiPersonsToTeamResult() *TGenericServicePutMultiPersonsToTeamResult {
-  return &TGenericServicePutMultiPersonsToTeamResult{}
-}
-
-func (p *TGenericServicePutMultiPersonsToTeamResult) Read(iprot thrift.TProtocol) error {
-  if _, err := iprot.ReadStructBegin(); err != nil {
-    return thrift.PrependError(fmt.Sprintf("%T read error: ", p), err)
-  }
-
-
-  for {
-    _, fieldTypeId, fieldId, err := iprot.ReadFieldBegin()
-    if err != nil {
-      return thrift.PrependError(fmt.Sprintf("%T field %d read error: ", p, fieldId), err)
-    }
-    if fieldTypeId == thrift.STOP { break; }
-    if err := iprot.Skip(fieldTypeId); err != nil {
-      return err
-    }
-    if err := iprot.ReadFieldEnd(); err != nil {
-      return err
-    }
-  }
-  if err := iprot.ReadStructEnd(); err != nil {
-    return thrift.PrependError(fmt.Sprintf("%T read struct end error: ", p), err)
-  }
-  return nil
-}
-
-func (p *TGenericServicePutMultiPersonsToTeamResult) Write(oprot thrift.TProtocol) error {
-  if err := oprot.WriteStructBegin("putMultiPersonsToTeam_result"); err != nil {
-    return thrift.PrependError(fmt.Sprintf("%T write struct begin error: ", p), err) }
-  if p != nil {
-  }
-  if err := oprot.WriteFieldStop(); err != nil {
-    return thrift.PrependError("write field stop error: ", err) }
-  if err := oprot.WriteStructEnd(); err != nil {
-    return thrift.PrependError("write struct stop error: ", err) }
-  return nil
-}
-
-func (p *TGenericServicePutMultiPersonsToTeamResult) String() string {
-  if p == nil {
-    return "<nil>"
-  }
-  return fmt.Sprintf("TGenericServicePutMultiPersonsToTeamResult(%+v)", *p)
-}
-
-// Attributes:
-//  - BsKey
 //  - RootID
 type TGenericServiceItemIsExistArgs struct {
   BsKey string `thrift:"bsKey,1" db:"bsKey" json:"bsKey"`
@@ -5344,148 +4942,6 @@ func (p *TGenericServiceRemoveItemResult) String() string {
     return "<nil>"
   }
   return fmt.Sprintf("TGenericServiceRemoveItemResult(%+v)", *p)
-}
-
-// Attributes:
-//  - BsKey
-type TGenericServiceRemoveAllArgs struct {
-  BsKey string `thrift:"bsKey,1" db:"bsKey" json:"bsKey"`
-}
-
-func NewTGenericServiceRemoveAllArgs() *TGenericServiceRemoveAllArgs {
-  return &TGenericServiceRemoveAllArgs{}
-}
-
-
-func (p *TGenericServiceRemoveAllArgs) GetBsKey() string {
-  return p.BsKey
-}
-func (p *TGenericServiceRemoveAllArgs) Read(iprot thrift.TProtocol) error {
-  if _, err := iprot.ReadStructBegin(); err != nil {
-    return thrift.PrependError(fmt.Sprintf("%T read error: ", p), err)
-  }
-
-
-  for {
-    _, fieldTypeId, fieldId, err := iprot.ReadFieldBegin()
-    if err != nil {
-      return thrift.PrependError(fmt.Sprintf("%T field %d read error: ", p, fieldId), err)
-    }
-    if fieldTypeId == thrift.STOP { break; }
-    switch fieldId {
-    case 1:
-      if fieldTypeId == thrift.STRING {
-        if err := p.ReadField1(iprot); err != nil {
-          return err
-        }
-      } else {
-        if err := iprot.Skip(fieldTypeId); err != nil {
-          return err
-        }
-      }
-    default:
-      if err := iprot.Skip(fieldTypeId); err != nil {
-        return err
-      }
-    }
-    if err := iprot.ReadFieldEnd(); err != nil {
-      return err
-    }
-  }
-  if err := iprot.ReadStructEnd(); err != nil {
-    return thrift.PrependError(fmt.Sprintf("%T read struct end error: ", p), err)
-  }
-  return nil
-}
-
-func (p *TGenericServiceRemoveAllArgs)  ReadField1(iprot thrift.TProtocol) error {
-  if v, err := iprot.ReadString(); err != nil {
-  return thrift.PrependError("error reading field 1: ", err)
-} else {
-  p.BsKey = v
-}
-  return nil
-}
-
-func (p *TGenericServiceRemoveAllArgs) Write(oprot thrift.TProtocol) error {
-  if err := oprot.WriteStructBegin("removeAll_args"); err != nil {
-    return thrift.PrependError(fmt.Sprintf("%T write struct begin error: ", p), err) }
-  if p != nil {
-    if err := p.writeField1(oprot); err != nil { return err }
-  }
-  if err := oprot.WriteFieldStop(); err != nil {
-    return thrift.PrependError("write field stop error: ", err) }
-  if err := oprot.WriteStructEnd(); err != nil {
-    return thrift.PrependError("write struct stop error: ", err) }
-  return nil
-}
-
-func (p *TGenericServiceRemoveAllArgs) writeField1(oprot thrift.TProtocol) (err error) {
-  if err := oprot.WriteFieldBegin("bsKey", thrift.STRING, 1); err != nil {
-    return thrift.PrependError(fmt.Sprintf("%T write field begin error 1:bsKey: ", p), err) }
-  if err := oprot.WriteString(string(p.BsKey)); err != nil {
-  return thrift.PrependError(fmt.Sprintf("%T.bsKey (1) field write error: ", p), err) }
-  if err := oprot.WriteFieldEnd(); err != nil {
-    return thrift.PrependError(fmt.Sprintf("%T write field end error 1:bsKey: ", p), err) }
-  return err
-}
-
-func (p *TGenericServiceRemoveAllArgs) String() string {
-  if p == nil {
-    return "<nil>"
-  }
-  return fmt.Sprintf("TGenericServiceRemoveAllArgs(%+v)", *p)
-}
-
-type TGenericServiceRemoveAllResult struct {
-}
-
-func NewTGenericServiceRemoveAllResult() *TGenericServiceRemoveAllResult {
-  return &TGenericServiceRemoveAllResult{}
-}
-
-func (p *TGenericServiceRemoveAllResult) Read(iprot thrift.TProtocol) error {
-  if _, err := iprot.ReadStructBegin(); err != nil {
-    return thrift.PrependError(fmt.Sprintf("%T read error: ", p), err)
-  }
-
-
-  for {
-    _, fieldTypeId, fieldId, err := iprot.ReadFieldBegin()
-    if err != nil {
-      return thrift.PrependError(fmt.Sprintf("%T field %d read error: ", p, fieldId), err)
-    }
-    if fieldTypeId == thrift.STOP { break; }
-    if err := iprot.Skip(fieldTypeId); err != nil {
-      return err
-    }
-    if err := iprot.ReadFieldEnd(); err != nil {
-      return err
-    }
-  }
-  if err := iprot.ReadStructEnd(); err != nil {
-    return thrift.PrependError(fmt.Sprintf("%T read struct end error: ", p), err)
-  }
-  return nil
-}
-
-func (p *TGenericServiceRemoveAllResult) Write(oprot thrift.TProtocol) error {
-  if err := oprot.WriteStructBegin("removeAll_result"); err != nil {
-    return thrift.PrependError(fmt.Sprintf("%T write struct begin error: ", p), err) }
-  if p != nil {
-  }
-  if err := oprot.WriteFieldStop(); err != nil {
-    return thrift.PrependError("write field stop error: ", err) }
-  if err := oprot.WriteStructEnd(); err != nil {
-    return thrift.PrependError("write struct stop error: ", err) }
-  return nil
-}
-
-func (p *TGenericServiceRemoveAllResult) String() string {
-  if p == nil {
-    return "<nil>"
-  }
-  return fmt.Sprintf("TGenericServiceRemoveAllResult(%+v)", *p)
 }
 
 
