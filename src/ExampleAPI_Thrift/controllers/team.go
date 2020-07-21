@@ -151,28 +151,6 @@ func (t *TeamController) Post() {
 	}
 }
 
-// @Title add person to team
-// @Description add person to team
-// @Param uid	path	string	true
-// @Param personId	body	string	true
-// @Success	200 {string} myGeneric.TPersonResult_
-// @router /:uid/person/ [post]
-func (t *TeamController) PostPerson() {
-
-	defer t.ServeJSON()
-	uid := t.GetString(":uid")
-	personId := t.GetString("personId")
-	sv := models.PersonClient{}
-	err := sv.PutPersonIsTeam(personId, uid)
-	if err != nil {
-		t.Ctx.ResponseWriter.WriteHeader(400)
-		return
-	}
-	t.Ctx.ResponseWriter.WriteHeader(201)
-	t.Data["json"] = "create success"
-	return
-}
-
 // @Title UpdateTeam
 // @Description update team
 // @Param uid 	path	string	true

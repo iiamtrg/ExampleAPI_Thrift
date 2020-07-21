@@ -7,7 +7,6 @@ import (
 	"encoding/json"
 	"net/http"
 	"net/http/httptest"
-	"net/url"
 	"path/filepath"
 	"runtime"
 	"testing"
@@ -114,29 +113,9 @@ func TestPutTeam(t *testing.T) {
 	})
 }
 
-// test delete a team
-func TestDeleteTeam(t *testing.T) {
-
-	req, err := http.NewRequest("DELETE", "/v1/team/t-2", nil)
-	if err != nil {
-		t.Fatal(err)
-	}
-	w := httptest.NewRecorder()
-	beego.BeeApp.Handlers.ServeHTTP(w, req)
-
-	log.Trace("testing", "TestTeam", "Code[%d]\n", w.Code)
-
-	Convey("Subject: Test Person Endpoint\n", t, func() {
-		Convey("Status Code Should Be 204", func() {
-			So(w.Code, ShouldEqual, 204)
-		})
-
-	})
-}
-
 // Get the person's team list
 func TestGetPersonIsTeam(t *testing.T) {
-	req, err := http.NewRequest("GET", "/v1/team/person/p-1", nil)
+	req, err := http.NewRequest("GET", "/v1/team/person/p-4", nil)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -159,26 +138,46 @@ func TestGetPersonIsTeam(t *testing.T) {
 	})
 }
 
-// test post person to team
-func TestPostPersonToTeam(t *testing.T) {
+// test delete a team
+func TestDeleteTeam(t *testing.T) {
 
-	form := url.Values{}
-	form.Set("personId", "p-1")
-	req, err := http.NewRequest("POST", "/v1/team/t-12/person", nil)
+	req, err := http.NewRequest("DELETE", "/v1/team/t-2", nil)
 	if err != nil {
 		t.Fatal(err)
 	}
-	req.PostForm = form
-	req.Header.Set("Content-Type", "multipart/form-data")
 	w := httptest.NewRecorder()
 	beego.BeeApp.Handlers.ServeHTTP(w, req)
 
-	log.Trace("testing", "TestTeam", "Code[%d]\n%s", w.Code, w.Body.String())
+	log.Trace("testing", "TestTeam", "Code[%d]\n", w.Code)
 
-	Convey("Subject: Test Team Endpoint\n", t, func() {
-		Convey("Status Code Should Be 201", func() {
-			So(w.Code, ShouldEqual, 201)
+	Convey("Subject: Test Person Endpoint\n", t, func() {
+		Convey("Status Code Should Be 204", func() {
+			So(w.Code, ShouldEqual, 204)
 		})
 
 	})
 }
+
+// test post person to team
+// func TestPostPersonToTeam(t *testing.T) {
+
+// 	form := url.Values{}
+// 	form.Set("personId", "p-1")
+// 	req, err := http.NewRequest("POST", "/v1/team/t-12/person", nil)
+// 	if err != nil {
+// 		t.Fatal(err)
+// 	}
+// 	req.PostForm = form
+// 	req.Header.Set("Content-Type", "multipart/form-data")
+// 	w := httptest.NewRecorder()
+// 	beego.BeeApp.Handlers.ServeHTTP(w, req)
+
+// 	log.Trace("testing", "TestTeam", "Code[%d]\n%s", w.Code, w.Body.String())
+
+// 	Convey("Subject: Test Team Endpoint\n", t, func() {
+// 		Convey("Status Code Should Be 201", func() {
+// 			So(w.Code, ShouldEqual, 201)
+// 		})
+
+// 	})
+// }

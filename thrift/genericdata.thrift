@@ -13,7 +13,8 @@ struct TPerson {
     1: required string personId,
     2: optional string personName,
     3: optional string birthDate,
-    4: optional string personAddress
+    4: optional string personAddress,
+    5: optional string teamId
 }
 
 struct TTeam {
@@ -52,7 +53,9 @@ service TGenericService {
 
     TPeronSetResult getPersonsPagination(1: string bsKey, 2: i32 offset, 3: i32 limit)
 
-    TPeronSetResult getPersonsOfTeam(1: string bsKey, 2: string bsKeyPerson),
+    TPeronSetResult getPersonsOfTeam(1: string teamID),
+
+    TPeronSetResult getPersonsOfTeamPagination(1: string teamID, 2: i32 offset, 3: i32 limit)
 
     TTeamResult getItemTeam(1: string bsKey, 2: string rootID),
 
@@ -60,21 +63,16 @@ service TGenericService {
 
     TTeamSetResult getTeamsPagination(1: string bsKey, 2: i32 offset, 3: i32 limit)
 
-    TTeamResult getPersonIsTeam(1: string bsKey, 2: string bsKeyTeam),
+    TTeamResult getPersonIsTeam(1: string personId),
 
     void putItemPerson(1: string bsKey, 2: TPerson item),
 
-    void putPersonIsTeam(1: string bsKey, 2: string teamId),
-
     void putItemTeam(1: string bsKey, 2: TTeam item),
 
-    void putPersonToTeam(1: string bsKey, 2: string personId)
-
-    void putMultiPersonsToTeam(1: string bsKey, 2: list<string> personIds),
+    void putPersonToTeam(1: string teamID, 2: string personId)
 
     bool itemIsExist(1: string bsKey, 2: string rootID),
 
     void removeItem(1: string bsKey, 2: string rootID),
 
-    void removeAll(1: string bsKey)
 }

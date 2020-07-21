@@ -26,19 +26,17 @@ func Usage() {
   fmt.Fprintln(os.Stderr, "  TPersonResult getItemPerson(string bsKey, string rootID)")
   fmt.Fprintln(os.Stderr, "  TPeronSetResult getItemsPerson(string bsKey)")
   fmt.Fprintln(os.Stderr, "  TPeronSetResult getPersonsPagination(string bsKey, i32 offset, i32 limit)")
-  fmt.Fprintln(os.Stderr, "  TPeronSetResult getPersonsOfTeam(string bsKey, string bsKeyPerson)")
+  fmt.Fprintln(os.Stderr, "  TPeronSetResult getPersonsOfTeam(string teamID)")
+  fmt.Fprintln(os.Stderr, "  TPeronSetResult getPersonsOfTeamPagination(string teamID, i32 offset, i32 limit)")
   fmt.Fprintln(os.Stderr, "  TTeamResult getItemTeam(string bsKey, string rootID)")
   fmt.Fprintln(os.Stderr, "  TTeamSetResult getItemsTeam(string bsKey)")
   fmt.Fprintln(os.Stderr, "  TTeamSetResult getTeamsPagination(string bsKey, i32 offset, i32 limit)")
-  fmt.Fprintln(os.Stderr, "  TTeamResult getPersonIsTeam(string bsKey, string bsKeyTeam)")
+  fmt.Fprintln(os.Stderr, "  TTeamResult getPersonIsTeam(string personId)")
   fmt.Fprintln(os.Stderr, "  void putItemPerson(string bsKey, TPerson item)")
-  fmt.Fprintln(os.Stderr, "  void putPersonIsTeam(string bsKey, string teamId)")
   fmt.Fprintln(os.Stderr, "  void putItemTeam(string bsKey, TTeam item)")
-  fmt.Fprintln(os.Stderr, "  void putPersonToTeam(string bsKey, string personId)")
-  fmt.Fprintln(os.Stderr, "  void putMultiPersonsToTeam(string bsKey,  personIds)")
+  fmt.Fprintln(os.Stderr, "  void putPersonToTeam(string teamID, string personId)")
   fmt.Fprintln(os.Stderr, "  bool itemIsExist(string bsKey, string rootID)")
   fmt.Fprintln(os.Stderr, "  void removeItem(string bsKey, string rootID)")
-  fmt.Fprintln(os.Stderr, "  void removeAll(string bsKey)")
   fmt.Fprintln(os.Stderr)
   os.Exit(0)
 }
@@ -189,15 +187,15 @@ func main() {
     }
     argvalue0 := flag.Arg(1)
     value0 := argvalue0
-    tmp1, err41 := (strconv.Atoi(flag.Arg(2)))
-    if err41 != nil {
+    tmp1, err36 := (strconv.Atoi(flag.Arg(2)))
+    if err36 != nil {
       Usage()
       return
     }
     argvalue1 := int32(tmp1)
     value1 := argvalue1
-    tmp2, err42 := (strconv.Atoi(flag.Arg(3)))
-    if err42 != nil {
+    tmp2, err37 := (strconv.Atoi(flag.Arg(3)))
+    if err37 != nil {
       Usage()
       return
     }
@@ -207,15 +205,37 @@ func main() {
     fmt.Print("\n")
     break
   case "getPersonsOfTeam":
-    if flag.NArg() - 1 != 2 {
-      fmt.Fprintln(os.Stderr, "GetPersonsOfTeam requires 2 args")
+    if flag.NArg() - 1 != 1 {
+      fmt.Fprintln(os.Stderr, "GetPersonsOfTeam requires 1 args")
       flag.Usage()
     }
     argvalue0 := flag.Arg(1)
     value0 := argvalue0
-    argvalue1 := flag.Arg(2)
+    fmt.Print(client.GetPersonsOfTeam(context.Background(), value0))
+    fmt.Print("\n")
+    break
+  case "getPersonsOfTeamPagination":
+    if flag.NArg() - 1 != 3 {
+      fmt.Fprintln(os.Stderr, "GetPersonsOfTeamPagination requires 3 args")
+      flag.Usage()
+    }
+    argvalue0 := flag.Arg(1)
+    value0 := argvalue0
+    tmp1, err40 := (strconv.Atoi(flag.Arg(2)))
+    if err40 != nil {
+      Usage()
+      return
+    }
+    argvalue1 := int32(tmp1)
     value1 := argvalue1
-    fmt.Print(client.GetPersonsOfTeam(context.Background(), value0, value1))
+    tmp2, err41 := (strconv.Atoi(flag.Arg(3)))
+    if err41 != nil {
+      Usage()
+      return
+    }
+    argvalue2 := int32(tmp2)
+    value2 := argvalue2
+    fmt.Print(client.GetPersonsOfTeamPagination(context.Background(), value0, value1, value2))
     fmt.Print("\n")
     break
   case "getItemTeam":
@@ -247,15 +267,15 @@ func main() {
     }
     argvalue0 := flag.Arg(1)
     value0 := argvalue0
-    tmp1, err49 := (strconv.Atoi(flag.Arg(2)))
-    if err49 != nil {
+    tmp1, err46 := (strconv.Atoi(flag.Arg(2)))
+    if err46 != nil {
       Usage()
       return
     }
     argvalue1 := int32(tmp1)
     value1 := argvalue1
-    tmp2, err50 := (strconv.Atoi(flag.Arg(3)))
-    if err50 != nil {
+    tmp2, err47 := (strconv.Atoi(flag.Arg(3)))
+    if err47 != nil {
       Usage()
       return
     }
@@ -265,15 +285,13 @@ func main() {
     fmt.Print("\n")
     break
   case "getPersonIsTeam":
-    if flag.NArg() - 1 != 2 {
-      fmt.Fprintln(os.Stderr, "GetPersonIsTeam requires 2 args")
+    if flag.NArg() - 1 != 1 {
+      fmt.Fprintln(os.Stderr, "GetPersonIsTeam requires 1 args")
       flag.Usage()
     }
     argvalue0 := flag.Arg(1)
     value0 := argvalue0
-    argvalue1 := flag.Arg(2)
-    value1 := argvalue1
-    fmt.Print(client.GetPersonIsTeam(context.Background(), value0, value1))
+    fmt.Print(client.GetPersonIsTeam(context.Background(), value0))
     fmt.Print("\n")
     break
   case "putItemPerson":
@@ -283,36 +301,24 @@ func main() {
     }
     argvalue0 := flag.Arg(1)
     value0 := argvalue0
-    arg54 := flag.Arg(2)
-    mbTrans55 := thrift.NewTMemoryBufferLen(len(arg54))
-    defer mbTrans55.Close()
-    _, err56 := mbTrans55.WriteString(arg54)
-    if err56 != nil {
+    arg50 := flag.Arg(2)
+    mbTrans51 := thrift.NewTMemoryBufferLen(len(arg50))
+    defer mbTrans51.Close()
+    _, err52 := mbTrans51.WriteString(arg50)
+    if err52 != nil {
       Usage()
       return
     }
-    factory57 := thrift.NewTJSONProtocolFactory()
-    jsProt58 := factory57.GetProtocol(mbTrans55)
+    factory53 := thrift.NewTJSONProtocolFactory()
+    jsProt54 := factory53.GetProtocol(mbTrans51)
     argvalue1 := myGeneric.NewTPerson()
-    err59 := argvalue1.Read(jsProt58)
-    if err59 != nil {
+    err55 := argvalue1.Read(jsProt54)
+    if err55 != nil {
       Usage()
       return
     }
     value1 := argvalue1
     fmt.Print(client.PutItemPerson(context.Background(), value0, value1))
-    fmt.Print("\n")
-    break
-  case "putPersonIsTeam":
-    if flag.NArg() - 1 != 2 {
-      fmt.Fprintln(os.Stderr, "PutPersonIsTeam requires 2 args")
-      flag.Usage()
-    }
-    argvalue0 := flag.Arg(1)
-    value0 := argvalue0
-    argvalue1 := flag.Arg(2)
-    value1 := argvalue1
-    fmt.Print(client.PutPersonIsTeam(context.Background(), value0, value1))
     fmt.Print("\n")
     break
   case "putItemTeam":
@@ -322,19 +328,19 @@ func main() {
     }
     argvalue0 := flag.Arg(1)
     value0 := argvalue0
-    arg63 := flag.Arg(2)
-    mbTrans64 := thrift.NewTMemoryBufferLen(len(arg63))
-    defer mbTrans64.Close()
-    _, err65 := mbTrans64.WriteString(arg63)
-    if err65 != nil {
+    arg57 := flag.Arg(2)
+    mbTrans58 := thrift.NewTMemoryBufferLen(len(arg57))
+    defer mbTrans58.Close()
+    _, err59 := mbTrans58.WriteString(arg57)
+    if err59 != nil {
       Usage()
       return
     }
-    factory66 := thrift.NewTJSONProtocolFactory()
-    jsProt67 := factory66.GetProtocol(mbTrans64)
+    factory60 := thrift.NewTJSONProtocolFactory()
+    jsProt61 := factory60.GetProtocol(mbTrans58)
     argvalue1 := myGeneric.NewTTeam()
-    err68 := argvalue1.Read(jsProt67)
-    if err68 != nil {
+    err62 := argvalue1.Read(jsProt61)
+    if err62 != nil {
       Usage()
       return
     }
@@ -352,34 +358,6 @@ func main() {
     argvalue1 := flag.Arg(2)
     value1 := argvalue1
     fmt.Print(client.PutPersonToTeam(context.Background(), value0, value1))
-    fmt.Print("\n")
-    break
-  case "putMultiPersonsToTeam":
-    if flag.NArg() - 1 != 2 {
-      fmt.Fprintln(os.Stderr, "PutMultiPersonsToTeam requires 2 args")
-      flag.Usage()
-    }
-    argvalue0 := flag.Arg(1)
-    value0 := argvalue0
-    arg72 := flag.Arg(2)
-    mbTrans73 := thrift.NewTMemoryBufferLen(len(arg72))
-    defer mbTrans73.Close()
-    _, err74 := mbTrans73.WriteString(arg72)
-    if err74 != nil { 
-      Usage()
-      return
-    }
-    factory75 := thrift.NewTJSONProtocolFactory()
-    jsProt76 := factory75.GetProtocol(mbTrans73)
-    containerStruct1 := myGeneric.NewTGenericServicePutMultiPersonsToTeamArgs()
-    err77 := containerStruct1.ReadField2(jsProt76)
-    if err77 != nil {
-      Usage()
-      return
-    }
-    argvalue1 := containerStruct1.PersonIds
-    value1 := argvalue1
-    fmt.Print(client.PutMultiPersonsToTeam(context.Background(), value0, value1))
     fmt.Print("\n")
     break
   case "itemIsExist":
@@ -404,16 +382,6 @@ func main() {
     argvalue1 := flag.Arg(2)
     value1 := argvalue1
     fmt.Print(client.RemoveItem(context.Background(), value0, value1))
-    fmt.Print("\n")
-    break
-  case "removeAll":
-    if flag.NArg() - 1 != 1 {
-      fmt.Fprintln(os.Stderr, "RemoveAll requires 1 args")
-      flag.Usage()
-    }
-    argvalue0 := flag.Arg(1)
-    value0 := argvalue0
-    fmt.Print(client.RemoveAll(context.Background(), value0))
     fmt.Print("\n")
     break
   case "":

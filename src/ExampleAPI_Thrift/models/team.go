@@ -3,13 +3,11 @@ package models
 import (
 	"ExampleAPI_Bigset_Thrift/thrift/gen-go/myGeneric"
 	"context"
-	"fmt"
-	"github.com/apache/thrift/lib/go/thrift"
 	"log"
-	"os"
 	"time"
-)
 
+	"github.com/apache/thrift/lib/go/thrift"
+)
 
 const addr = "127.0.0.1:9090"
 
@@ -21,7 +19,7 @@ type TeamClient struct {
 	Transport        thrift.TTransport
 }
 
-func (t *TeamClient) InitSocket()  {
+func (t *TeamClient) InitSocket() {
 
 	t.TransportFactory = thrift.NewTBufferedTransportFactory(8192)
 
@@ -31,7 +29,7 @@ func (t *TeamClient) InitSocket()  {
 	if err != nil {
 		log.Println(err, "Error Opening socket: ")
 	}
-	if t.Transport == nil{
+	if t.Transport == nil {
 		log.Println("Error from transportFactory.GetTransport(), got nil transport. Is server available?")
 	}
 	t.Transport, err = t.TransportFactory.GetTransport(t.Transport)
@@ -39,7 +37,7 @@ func (t *TeamClient) InitSocket()  {
 		log.Println("Error from transportFactory.GetTransport(), got nil transport. Is server available?")
 	}
 	err = t.Transport.Open()
-	if err !=nil {
+	if err != nil {
 		log.Println(err, "error opening transport")
 	}
 }
@@ -56,13 +54,12 @@ func (t *TeamClient) GetItemsAll() (*myGeneric.TTeamSetResult_, error) {
 
 	result, err := client.GetItemsTeam(ctx, BS_TEAM)
 	if err != nil {
-		fmt.Fprintln(os.Stderr, "bigset error", err)
 		return nil, err
 	}
 	return result, nil
 }
 
-func (t *TeamClient) GetItemsPagination(offset int32, limit int32) (*myGeneric.TTeamSetResult_, error){
+func (t *TeamClient) GetItemsPagination(offset int32, limit int32) (*myGeneric.TTeamSetResult_, error) {
 
 	t.InitSocket()
 	defer t.Transport.Close()
@@ -73,13 +70,12 @@ func (t *TeamClient) GetItemsPagination(offset int32, limit int32) (*myGeneric.T
 
 	result, err := client.GetTeamsPagination(ctx, BS_PERSON, offset, limit)
 	if err != nil {
-		fmt.Fprintln(os.Stderr, "bigset error", err)
 		return nil, err
 	}
 	return result, nil
 }
 
-func (t *TeamClient) GetItemById(id string) (*myGeneric.TTeamResult_, error)  {
+func (t *TeamClient) GetItemById(id string) (*myGeneric.TTeamResult_, error) {
 
 	t.InitSocket()
 	defer t.Transport.Close()
@@ -89,7 +85,6 @@ func (t *TeamClient) GetItemById(id string) (*myGeneric.TTeamResult_, error)  {
 	client := myGeneric.NewTGenericServiceClientFactory(t.Transport, t.ProtocolFactory)
 	result, err := client.GetItemTeam(ctx, BS_TEAM, id)
 	if err != nil {
-		fmt.Fprintln(os.Stderr, "bigset error", err)
 		return nil, err
 	}
 	return result, nil
@@ -105,7 +100,6 @@ func (t *TeamClient) PutItem(item *myGeneric.TTeam) error {
 	client := myGeneric.NewTGenericServiceClientFactory(t.Transport, t.ProtocolFactory)
 	err := client.PutItemTeam(ctx, BS_TEAM, item)
 	if err != nil {
-		fmt.Fprintln(os.Stderr, "bigset error", err)
 		return err
 	}
 	return nil
@@ -121,24 +115,25 @@ func (t *TeamClient) RemoveItem(teamId string) error {
 	client := myGeneric.NewTGenericServiceClientFactory(t.Transport, t.ProtocolFactory)
 	err := client.RemoveItem(ctx, BS_TEAM, teamId)
 	if err != nil {
-		fmt.Fprintln(os.Stderr, "bigset error", err)
 		return err
 	}
-
 	//xóa tất cả các node ràng buộc giữa team và person
-	personsOfTeam, err := client.GetPersonsOfTeam(ctx, teamId, BS_PERSON)
+	personsOfTeam, err := client.GetPersonsOfTeam(ctx, teamId)
 	if err != nil {
-		fmt.Fprintln(os.Stderr, "bigset error", err)
-	} else {
-		// xóa các node bigset name : personID
-		for _, v := range personsOfTeam.Items {
-			_ = client.RemoveAll(ctx, v.GetPersonId())
-		}
+		return err
 	}
-	// xóa các node bigset name : teamID
-	err = client.RemoveAll(ctx, teamId)
-	if err != nil {
-		fmt.Fprintln(os.Stderr, "bigset error", err)
+	for _, v := range personsOfTeam.Items {
+
+		// update person in the team
+		temp := &myGeneric.TPerson{}
+		temp.PersonId = v.GetPersonId()
+		name := v.GetPersonName()
+		date := v.GetBirthDate()
+		temp.PersonName = &name
+		temp.BirthDate = &date
+		temp.TeamId = nil
+		// remove node teamID(bsKey: teamID)
+		_ = client.RemoveItem(ctx, teamId, v.GetPersonId())
 	}
 	return nil
 }
