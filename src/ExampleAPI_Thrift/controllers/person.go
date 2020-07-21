@@ -41,10 +41,10 @@ func (p *PersonController) Get() {
 	} else if off != "" && limit == "" {
 		offInt, err := strconv.Atoi(off)
 		if err != nil {
-			p.Ctx.ResponseWriter.WriteHeader(400)
+			p.Ctx.ResponseWriter.WriteHeader(403)
 			return
 		}
-		result, err := sv.GetItemsPagination(int32(offInt), 0)
+		result, err := sv.GetItemsPagination(int32(offInt), 10)
 		if err != nil {
 			p.Ctx.ResponseWriter.WriteHeader(500)
 		}
