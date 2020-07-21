@@ -14,8 +14,8 @@ import (
 )
 
 type Error struct {
-	code    string
-	message string
+	Code    string `json:"code"`
+	Message string `json:"message"`
 }
 
 // Operations about Users
@@ -40,8 +40,8 @@ func (p *PersonController) Get() {
 		if err != nil {
 			p.Ctx.ResponseWriter.WriteHeader(500)
 			errJson := &Error{}
-			errJson.code = "500"
-			errJson.message = err.Error()
+			errJson.Code = "500"
+			errJson.Message = err.Error()
 			p.Data["json"] = errJson
 			return
 		} else {
@@ -53,8 +53,8 @@ func (p *PersonController) Get() {
 		if err != nil {
 			p.Ctx.ResponseWriter.WriteHeader(403)
 			errJson := &Error{}
-			errJson.code = "403"
-			errJson.message = err.Error()
+			errJson.Code = "403"
+			errJson.Message = err.Error()
 			p.Data["json"] = errJson
 			return
 		}
@@ -62,8 +62,8 @@ func (p *PersonController) Get() {
 		if err != nil {
 			p.Ctx.ResponseWriter.WriteHeader(500)
 			errJson := &Error{}
-			errJson.code = "500"
-			errJson.message = err.Error()
+			errJson.Code = "500"
+			errJson.Message = err.Error()
 			p.Data["json"] = errJson
 			return
 		}
@@ -74,8 +74,8 @@ func (p *PersonController) Get() {
 		if err != nil {
 			p.Ctx.ResponseWriter.WriteHeader(403)
 			errJson := &Error{}
-			errJson.code = "403"
-			errJson.message = err.Error()
+			errJson.Code = "403"
+			errJson.Message = err.Error()
 			p.Data["json"] = errJson
 			return
 		}
@@ -83,8 +83,8 @@ func (p *PersonController) Get() {
 		if err != nil {
 			p.Ctx.ResponseWriter.WriteHeader(500)
 			errJson := &Error{}
-			errJson.code = "500"
-			errJson.message = err.Error()
+			errJson.Code = "500"
+			errJson.Message = err.Error()
 			p.Data["json"] = errJson
 		}
 		p.Data["json"] = result
@@ -94,8 +94,8 @@ func (p *PersonController) Get() {
 		if err != nil {
 			p.Ctx.ResponseWriter.WriteHeader(403)
 			errJson := &Error{}
-			errJson.code = "403"
-			errJson.message = err.Error()
+			errJson.Code = "403"
+			errJson.Message = err.Error()
 			p.Data["json"] = errJson
 			return
 		}
@@ -103,8 +103,8 @@ func (p *PersonController) Get() {
 		if err != nil {
 			p.Ctx.ResponseWriter.WriteHeader(403)
 			errJson := &Error{}
-			errJson.code = "403"
-			errJson.message = err.Error()
+			errJson.Code = "403"
+			errJson.Message = err.Error()
 			p.Data["json"] = errJson
 			return
 		}
@@ -112,8 +112,8 @@ func (p *PersonController) Get() {
 		if err != nil {
 			p.Ctx.ResponseWriter.WriteHeader(500)
 			errJson := &Error{}
-			errJson.code = "500"
-			errJson.message = err.Error()
+			errJson.Code = "500"
+			errJson.Message = err.Error()
 			p.Data["json"] = errJson
 			return
 		}
@@ -137,8 +137,12 @@ func (p *PersonController) GetById() {
 	if err != nil {
 		p.Ctx.ResponseWriter.WriteHeader(404)
 		p.Data["json"] = "id is not exist"
+		return
+	} else {
+		p.Data["json"] = result
+		return
 	}
-	p.Data["json"] = result
+
 }
 
 // @Title Get persons of team
@@ -159,32 +163,33 @@ func (p *PersonController) GetPersonOfTeam() {
 	if off == "" && limit == "" {
 		result, err := sv.GetPersonsOfTeam(teamID)
 		if err != nil {
-			p.Ctx.ResponseWriter.WriteHeader(500)
+			p.Ctx.ResponseWriter.WriteHeader(404)
 			errJson := &Error{}
-			errJson.code = "500"
-			errJson.message = err.Error()
+			errJson.Code = "404"
+			errJson.Message = err.Error()
 			p.Data["json"] = errJson
 			return
 		} else {
 			p.Ctx.ResponseWriter.WriteHeader(200)
 			p.Data["json"] = result
+			return
 		}
 	} else if off != "" && limit == "" {
 		offInt, err := strconv.Atoi(off)
 		if err != nil {
 			p.Ctx.ResponseWriter.WriteHeader(403)
 			errJson := &Error{}
-			errJson.code = "403"
-			errJson.message = err.Error()
+			errJson.Code = "403"
+			errJson.Message = err.Error()
 			p.Data["json"] = errJson
 			return
 		}
 		result, err := sv.GetPersonOfTeamPagination(teamID, int32(offInt), 0)
 		if err != nil {
-			p.Ctx.ResponseWriter.WriteHeader(500)
+			p.Ctx.ResponseWriter.WriteHeader(404)
 			errJson := &Error{}
-			errJson.code = "500"
-			errJson.message = err.Error()
+			errJson.Code = "500"
+			errJson.Message = err.Error()
 			p.Data["json"] = errJson
 			return
 		}
@@ -195,17 +200,17 @@ func (p *PersonController) GetPersonOfTeam() {
 		if err != nil {
 			p.Ctx.ResponseWriter.WriteHeader(403)
 			errJson := &Error{}
-			errJson.code = "403"
-			errJson.message = err.Error()
+			errJson.Code = "403"
+			errJson.Message = err.Error()
 			p.Data["json"] = errJson
 			return
 		}
 		result, err := sv.GetPersonOfTeamPagination(teamID, 0, int32(limitInt))
 		if err != nil {
-			p.Ctx.ResponseWriter.WriteHeader(500)
+			p.Ctx.ResponseWriter.WriteHeader(404)
 			errJson := &Error{}
-			errJson.code = "500"
-			errJson.message = err.Error()
+			errJson.Code = "500"
+			errJson.Message = err.Error()
 			p.Data["json"] = errJson
 			return
 		}
@@ -216,8 +221,8 @@ func (p *PersonController) GetPersonOfTeam() {
 		if err != nil {
 			p.Ctx.ResponseWriter.WriteHeader(403)
 			errJson := &Error{}
-			errJson.code = "403"
-			errJson.message = err.Error()
+			errJson.Code = "403"
+			errJson.Message = err.Error()
 			p.Data["json"] = errJson
 			return
 		}
@@ -225,17 +230,17 @@ func (p *PersonController) GetPersonOfTeam() {
 		if err != nil {
 			p.Ctx.ResponseWriter.WriteHeader(403)
 			errJson := &Error{}
-			errJson.code = "403"
-			errJson.message = err.Error()
+			errJson.Code = "403"
+			errJson.Message = err.Error()
 			p.Data["json"] = errJson
 			return
 		}
 		result, err := sv.GetPersonOfTeamPagination(teamID, int32(offInt), int32(limitInt))
 		if err != nil {
-			p.Ctx.ResponseWriter.WriteHeader(500)
+			p.Ctx.ResponseWriter.WriteHeader(404)
 			errJson := &Error{}
-			errJson.code = "500"
-			errJson.message = err.Error()
+			errJson.Code = "500"
+			errJson.Message = err.Error()
 			p.Data["json"] = errJson
 			return
 		}
@@ -257,8 +262,8 @@ func (p *PersonController) Post() {
 	if err != nil {
 		p.Ctx.ResponseWriter.WriteHeader(400)
 		errJson := &Error{}
-		errJson.code = "400"
-		errJson.message = err.Error()
+		errJson.Code = "400"
+		errJson.Message = err.Error()
 		p.Data["json"] = errJson
 		return
 	} else {
@@ -266,8 +271,8 @@ func (p *PersonController) Post() {
 		if err != nil || !matched {
 			p.Ctx.ResponseWriter.WriteHeader(400)
 			obj := make(map[string]string)
-			obj["code"] = "400"
-			obj["message"] = "personID is not valid. Pattern: p-[0-9]+"
+			obj["Code"] = "400"
+			obj["Message"] = "personID is not valid. Pattern: p-[0-9]+"
 			p.Data["json"] = obj
 			return
 		}
@@ -276,8 +281,8 @@ func (p *PersonController) Post() {
 		if err != nil {
 			p.Ctx.ResponseWriter.WriteHeader(500)
 			errJson := &Error{}
-			errJson.code = "500"
-			errJson.message = err.Error()
+			errJson.Code = "500"
+			errJson.Message = err.Error()
 			p.Data["json"] = errJson
 			return
 		}
@@ -300,8 +305,8 @@ func (p *PersonController) Put() {
 	if err != nil || strings.Compare(person.GetPersonId(), p.GetString(":uid")) != 0 {
 		p.Ctx.ResponseWriter.WriteHeader(400)
 		errJson := &Error{}
-		errJson.code = "500"
-		errJson.message = err.Error()
+		errJson.Code = "500"
+		errJson.Message = err.Error()
 		p.Data["json"] = errJson
 		return
 	} else {
@@ -311,8 +316,8 @@ func (p *PersonController) Put() {
 		if err2 != nil {
 			p.Ctx.ResponseWriter.WriteHeader(500)
 			errJson := &Error{}
-			errJson.code = "500"
-			errJson.message = err.Error()
+			errJson.Code = "500"
+			errJson.Message = err.Error()
 			p.Data["json"] = errJson
 			return
 		} else if err1 != nil {
@@ -340,8 +345,8 @@ func (p *PersonController) Delete() {
 	if err != nil {
 		p.Ctx.ResponseWriter.WriteHeader(404)
 		errJson := &Error{}
-		errJson.code = "404"
-		errJson.message = err.Error()
+		errJson.Code = "404"
+		errJson.Message = err.Error()
 		p.Data["json"] = errJson
 		return
 	} else {
@@ -349,8 +354,8 @@ func (p *PersonController) Delete() {
 		if err != nil {
 			p.Ctx.ResponseWriter.WriteHeader(500)
 			errJson := &Error{}
-			errJson.code = "500"
-			errJson.message = err.Error()
+			errJson.Code = "500"
+			errJson.Message = err.Error()
 			p.Data["json"] = errJson
 			return
 		}

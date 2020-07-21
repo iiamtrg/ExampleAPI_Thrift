@@ -34,6 +34,11 @@ func (t *TeamController) Get() {
 		result, err := sv.GetItemsAll()
 		if err != nil {
 			t.Ctx.ResponseWriter.WriteHeader(500)
+			errJson := &Error{}
+			errJson.Code = "500"
+			errJson.Message = err.Error()
+			t.Data["json"] = errJson
+			return
 		} else {
 			t.Ctx.ResponseWriter.WriteHeader(200)
 			t.Data["json"] = result
@@ -42,11 +47,20 @@ func (t *TeamController) Get() {
 		offInt, err := strconv.Atoi(off)
 		if err != nil {
 			t.Ctx.ResponseWriter.WriteHeader(400)
+			errJson := &Error{}
+			errJson.Code = "400"
+			errJson.Message = err.Error()
+			t.Data["json"] = errJson
 			return
 		}
 		result, err := sv.GetItemsPagination(int32(offInt), 0)
 		if err != nil {
 			t.Ctx.ResponseWriter.WriteHeader(500)
+			errJson := &Error{}
+			errJson.Code = "500"
+			errJson.Message = err.Error()
+			t.Data["json"] = errJson
+			return
 		}
 		t.Data["json"] = result
 		return
@@ -54,11 +68,20 @@ func (t *TeamController) Get() {
 		limitInt, err := strconv.Atoi(limit)
 		if err != nil {
 			t.Ctx.ResponseWriter.WriteHeader(400)
+			errJson := &Error{}
+			errJson.Code = "500"
+			errJson.Message = err.Error()
+			t.Data["json"] = errJson
 			return
 		}
 		result, err := sv.GetItemsPagination(0, int32(limitInt))
 		if err != nil {
 			t.Ctx.ResponseWriter.WriteHeader(500)
+			errJson := &Error{}
+			errJson.Code = "500"
+			errJson.Message = err.Error()
+			t.Data["json"] = errJson
+			return
 		}
 		t.Data["json"] = result
 		return
@@ -66,16 +89,29 @@ func (t *TeamController) Get() {
 		offInt, err := strconv.Atoi(off)
 		if err != nil {
 			t.Ctx.ResponseWriter.WriteHeader(400)
+			errJson := &Error{}
+			errJson.Code = "400"
+			errJson.Message = err.Error()
+			t.Data["json"] = errJson
 			return
 		}
 		limitInt, err := strconv.Atoi(limit)
 		if err != nil {
 			t.Ctx.ResponseWriter.WriteHeader(400)
+			errJson := &Error{}
+			errJson.Code = "400"
+			errJson.Message = err.Error()
+			t.Data["json"] = errJson
 			return
 		}
 		result, err := sv.GetItemsPagination(int32(offInt), int32(limitInt))
 		if err != nil {
 			t.Ctx.ResponseWriter.WriteHeader(500)
+			errJson := &Error{}
+			errJson.Code = "500"
+			errJson.Message = err.Error()
+			t.Data["json"] = errJson
+			return
 		}
 		t.Data["json"] = result
 		return
@@ -96,8 +132,8 @@ func (t *TeamController) GetById() {
 	if err != nil {
 		t.Ctx.ResponseWriter.WriteHeader(404)
 		errJson := &Error{}
-		errJson.code = "404"
-		errJson.message = err.Error()
+		errJson.Code = "404"
+		errJson.Message = err.Error()
 		t.Data["json"] = errJson
 		return
 	}
@@ -118,8 +154,8 @@ func (t *TeamController) GetPersonTeam() {
 	if err != nil {
 		t.Ctx.ResponseWriter.WriteHeader(404)
 		errJson := &Error{}
-		errJson.code = "404"
-		errJson.message = err.Error()
+		errJson.Code = "404"
+		errJson.Message = err.Error()
 		t.Data["json"] = errJson
 		return
 	}
@@ -138,8 +174,8 @@ func (t *TeamController) Post() {
 	if err != nil {
 		t.Ctx.ResponseWriter.WriteHeader(400)
 		errJson := &Error{}
-		errJson.code = "400"
-		errJson.message = err.Error()
+		errJson.Code = "400"
+		errJson.Message = err.Error()
 		t.Data["json"] = errJson
 		return
 	} else {
@@ -147,8 +183,8 @@ func (t *TeamController) Post() {
 		if err != nil || !matched {
 			t.Ctx.ResponseWriter.WriteHeader(400)
 			obj := make(map[string]string, 0)
-			obj["code"] = "400"
-			obj["message"] = "teamID is not valid. Pattern: t-[0-9]+"
+			obj["Code"] = "400"
+			obj["Message"] = "teamID is not valid. Pattern: t-[0-9]+"
 			t.Data["json"] = obj
 			return
 		}
@@ -157,8 +193,8 @@ func (t *TeamController) Post() {
 		if err != nil {
 			t.Ctx.ResponseWriter.WriteHeader(500)
 			errJson := &Error{}
-			errJson.code = "500"
-			errJson.message = err.Error()
+			errJson.Code = "500"
+			errJson.Message = err.Error()
 			t.Data["json"] = errJson
 			return
 		}
@@ -181,8 +217,8 @@ func (t *TeamController) Put() {
 	if err != nil || strings.Compare(team.GetTeamId(), t.GetString(":uid")) != 0 {
 		t.Ctx.ResponseWriter.WriteHeader(400)
 		errJson := &Error{}
-		errJson.code = "400"
-		errJson.message = err.Error()
+		errJson.Code = "400"
+		errJson.Message = err.Error()
 		t.Data["json"] = errJson
 	} else {
 		sv := &models.TeamClient{}
@@ -191,8 +227,8 @@ func (t *TeamController) Put() {
 		if err2 != nil {
 			t.Ctx.ResponseWriter.WriteHeader(500)
 			errJson := &Error{}
-			errJson.code = "500"
-			errJson.message = err.Error()
+			errJson.Code = "500"
+			errJson.Message = err.Error()
 			t.Data["json"] = errJson
 			return
 		} else if err1 != nil {
@@ -218,8 +254,8 @@ func (t *TeamController) Delete() {
 	if err != nil {
 		t.Ctx.ResponseWriter.WriteHeader(404)
 		errJson := &Error{}
-		errJson.code = "404"
-		errJson.message = err.Error()
+		errJson.Code = "404"
+		errJson.Message = err.Error()
 		t.Data["json"] = errJson
 		return
 	} else {
@@ -227,8 +263,8 @@ func (t *TeamController) Delete() {
 		if err != nil {
 			t.Ctx.ResponseWriter.WriteHeader(500)
 			errJson := &Error{}
-			errJson.code = "500"
-			errJson.message = err.Error()
+			errJson.Code = "500"
+			errJson.Message = err.Error()
 			t.Data["json"] = errJson
 			return
 		}
