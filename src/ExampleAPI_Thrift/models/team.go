@@ -3,9 +3,7 @@ package models
 import (
 	"ExampleAPI_Bigset_Thrift/thrift/gen-go/myGeneric"
 	"context"
-	"fmt"
 	"log"
-	"os"
 	"time"
 
 	"github.com/apache/thrift/lib/go/thrift"
@@ -56,7 +54,6 @@ func (t *TeamClient) GetItemsAll() (*myGeneric.TTeamSetResult_, error) {
 
 	result, err := client.GetItemsTeam(ctx, BS_TEAM)
 	if err != nil {
-		fmt.Fprintln(os.Stderr, "bigset error", err)
 		return nil, err
 	}
 	return result, nil
@@ -73,7 +70,6 @@ func (t *TeamClient) GetItemsPagination(offset int32, limit int32) (*myGeneric.T
 
 	result, err := client.GetTeamsPagination(ctx, BS_PERSON, offset, limit)
 	if err != nil {
-		fmt.Fprintln(os.Stderr, "bigset error", err)
 		return nil, err
 	}
 	return result, nil
@@ -89,7 +85,6 @@ func (t *TeamClient) GetItemById(id string) (*myGeneric.TTeamResult_, error) {
 	client := myGeneric.NewTGenericServiceClientFactory(t.Transport, t.ProtocolFactory)
 	result, err := client.GetItemTeam(ctx, BS_TEAM, id)
 	if err != nil {
-		fmt.Fprintln(os.Stderr, "bigset error", err)
 		return nil, err
 	}
 	return result, nil
@@ -105,7 +100,6 @@ func (t *TeamClient) PutItem(item *myGeneric.TTeam) error {
 	client := myGeneric.NewTGenericServiceClientFactory(t.Transport, t.ProtocolFactory)
 	err := client.PutItemTeam(ctx, BS_TEAM, item)
 	if err != nil {
-		fmt.Fprintln(os.Stderr, "bigset error", err)
 		return err
 	}
 	return nil
@@ -121,21 +115,25 @@ func (t *TeamClient) RemoveItem(teamId string) error {
 	client := myGeneric.NewTGenericServiceClientFactory(t.Transport, t.ProtocolFactory)
 	err := client.RemoveItem(ctx, BS_TEAM, teamId)
 	if err != nil {
-		fmt.Fprintln(os.Stderr, "bigset error", err)
 		return err
 	}
-
 	//xóa tất cả các node ràng buộc giữa team và person
 	personsOfTeam, err := client.GetPersonsOfTeam(ctx, teamId)
 	if err != nil {
-		fmt.Fprintln(os.Stderr, "bigset error", err)
-	} else {
-		// xóa các node bigset name : personID, teamID
-		for _, v := range personsOfTeam.Items {
-			_ = client.RemoveItem(ctx, v.GetPersonId(), teamId)
-			_ = client.RemoveItem(ctx, teamId, v.GetPersonId())
-		}
+		return err
 	}
+	for _, v := range personsOfTeam.Items {
 
+		// update person in the team
+		temp := &myGeneric.TPerson{}
+		temp.PersonId = v.GetPersonId()
+		name := v.GetPersonName()
+		date := v.GetBirthDate()
+		temp.PersonName = &name
+		temp.BirthDate = &date
+		temp.TeamId = nil
+		// remove node teamID(bsKey: teamID)
+		_ = client.RemoveItem(ctx, teamId, v.GetPersonId())
+	}
 	return nil
 }

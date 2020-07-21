@@ -53,7 +53,7 @@ func (p *PersonController) Get() {
 	} else if off == "" && limit != "" {
 		limitInt, err := strconv.Atoi(limit)
 		if err != nil {
-			p.Ctx.ResponseWriter.WriteHeader(400)
+			p.Ctx.ResponseWriter.WriteHeader(403)
 			return
 		}
 		result, err := sv.GetItemsPagination(0, int32(limitInt))
@@ -65,17 +65,18 @@ func (p *PersonController) Get() {
 	} else {
 		offInt, err := strconv.Atoi(off)
 		if err != nil {
-			p.Ctx.ResponseWriter.WriteHeader(400)
+			p.Ctx.ResponseWriter.WriteHeader(403)
 			return
 		}
 		limitInt, err := strconv.Atoi(limit)
 		if err != nil {
-			p.Ctx.ResponseWriter.WriteHeader(400)
+			p.Ctx.ResponseWriter.WriteHeader(403)
 			return
 		}
 		result, err := sv.GetItemsPagination(int32(offInt), int32(limitInt))
 		if err != nil {
 			p.Ctx.ResponseWriter.WriteHeader(500)
+			return
 		}
 		p.Data["json"] = result
 		return
@@ -104,19 +105,68 @@ func (p *PersonController) GetById() {
 // @Title Get persons of team
 // @Description  Get persons of team
 // @Param	uid 	path	string	true
+// @Param	offset	query	int	false
+// @Param	limit	query	int	false
 // @Success 200 {object} teams
 // @router /team/:uid [get]
 func (p *PersonController) GetPersonOfTeam() {
 
 	defer p.ServeJSON()
-	teamId := p.GetString(":uid")
 	sv := &models.PersonClient{}
-	result, err := sv.GetPersonsOfTeam(teamId)
-	if err != nil {
-		p.Ctx.ResponseWriter.WriteHeader(404)
+	off := p.GetString("offset")
+	limit := p.GetString("limit")
+	if off == "" && limit == "" {
+		result, err := sv.GetItemsAll()
+		if err != nil {
+			p.Ctx.ResponseWriter.WriteHeader(500)
+		} else {
+			p.Ctx.ResponseWriter.WriteHeader(200)
+			p.Data["json"] = result
+		}
+	} else if off != "" && limit == "" {
+		offInt, err := strconv.Atoi(off)
+		if err != nil {
+			p.Ctx.ResponseWriter.WriteHeader(403)
+			return
+		}
+		result, err := sv.GetItemsPagination(int32(offInt), 0)
+		if err != nil {
+			p.Ctx.ResponseWriter.WriteHeader(500)
+		}
+		p.Data["json"] = result
+		return
+	} else if off == "" && limit != "" {
+		limitInt, err := strconv.Atoi(limit)
+		if err != nil {
+			p.Ctx.ResponseWriter.WriteHeader(403)
+			return
+		}
+		result, err := sv.GetItemsPagination(0, int32(limitInt))
+		if err != nil {
+			p.Ctx.ResponseWriter.WriteHeader(500)
+		}
+		p.Data["json"] = result
+		return
+	} else {
+		offInt, err := strconv.Atoi(off)
+		if err != nil {
+			p.Ctx.ResponseWriter.WriteHeader(403)
+			return
+		}
+		limitInt, err := strconv.Atoi(limit)
+		if err != nil {
+			p.Ctx.ResponseWriter.WriteHeader(403)
+			return
+		}
+		result, err := sv.GetPersonOfTeamPagination(int32(offInt), int32(limitInt))
+		if err != nil {
+			p.Ctx.ResponseWriter.WriteHeader(500)
+			return
+		}
+		p.Data["json"] = result
 		return
 	}
-	p.Data["json"] = result
+
 }
 
 // @Title CreatePerson
@@ -144,33 +194,11 @@ func (p *PersonController) Post() {
 		err = sv.PutItem(&person)
 		if err != nil {
 			p.Ctx.ResponseWriter.WriteHeader(500)
+			return
 		}
 		p.Ctx.ResponseWriter.WriteHeader(201)
 		p.Data["json"] = "create success"
 	}
-}
-
-// @Title create person's team
-// @Description create person's team
-// @Param uid	path	string	true
-// @Param teamId	body	string	true
-// @Success	200 {string} string
-// @router /:uid/team/ [post]
-func (p *PersonController) PostTeam() {
-
-	defer p.ServeJSON()
-	uid := p.GetString(":uid")
-	teamId := p.GetString("teamId")
-	sv := models.PersonClient{}
-	err := sv.PutPersonIsTeam(uid, teamId)
-	if err != nil {
-		p.Ctx.ResponseWriter.WriteHeader(400)
-		p.Data["json"] = err.Error()
-		return
-	}
-	p.Ctx.ResponseWriter.WriteHeader(201)
-	p.Data["json"] = "create success"
-	return
 }
 
 // @Title UpdatePerson

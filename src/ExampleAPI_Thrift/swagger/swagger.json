@@ -83,6 +83,20 @@
                         "name": "uid",
                         "description": "true",
                         "type": "string"
+                    },
+                    {
+                        "in": "query",
+                        "name": "offset",
+                        "description": "false",
+                        "type": "integer",
+                        "format": "int64"
+                    },
+                    {
+                        "in": "query",
+                        "name": "limit",
+                        "description": "false",
+                        "type": "integer",
+                        "format": "int64"
                     }
                 ],
                 "responses": {
@@ -167,37 +181,6 @@
                 "responses": {
                     "204": {
                         "description": ""
-                    }
-                }
-            }
-        },
-        "/person/{uid}/team/": {
-            "post": {
-                "tags": [
-                    "person"
-                ],
-                "description": "create person's team",
-                "operationId": "PersonController.create person's team",
-                "parameters": [
-                    {
-                        "in": "path",
-                        "name": "uid",
-                        "description": "true",
-                        "type": "string"
-                    },
-                    {
-                        "in": "body",
-                        "name": "teamId",
-                        "description": "true",
-                        "schema": {
-                            "type": "string"
-                        },
-                        "type": "string"
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "{string} string"
                     }
                 }
             }
@@ -348,37 +331,6 @@
                 "responses": {
                     "204": {
                         "description": ""
-                    }
-                }
-            }
-        },
-        "/team/{uid}/person/": {
-            "post": {
-                "tags": [
-                    "team"
-                ],
-                "description": "add person to team",
-                "operationId": "TeamController.add person to team",
-                "parameters": [
-                    {
-                        "in": "path",
-                        "name": "uid",
-                        "description": "true",
-                        "type": "string"
-                    },
-                    {
-                        "in": "body",
-                        "name": "personId",
-                        "description": "true",
-                        "schema": {
-                            "type": "string"
-                        },
-                        "type": "string"
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "{string} myGeneric.TPersonResult_"
                     }
                 }
             }
