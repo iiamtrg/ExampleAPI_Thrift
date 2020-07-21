@@ -115,8 +115,10 @@ func (p *PersonController) GetPersonOfTeam() {
 	sv := &models.PersonClient{}
 	off := p.GetString("offset")
 	limit := p.GetString("limit")
+	teamID := p.GetString(":uid")
+
 	if off == "" && limit == "" {
-		result, err := sv.GetItemsAll()
+		result, err := sv.GetPersonsOfTeam(teamID)
 		if err != nil {
 			p.Ctx.ResponseWriter.WriteHeader(500)
 		} else {
@@ -129,7 +131,7 @@ func (p *PersonController) GetPersonOfTeam() {
 			p.Ctx.ResponseWriter.WriteHeader(403)
 			return
 		}
-		result, err := sv.GetItemsPagination(int32(offInt), 0)
+		result, err := sv.GetPersonOfTeamPagination(teamID, int32(offInt), 0)
 		if err != nil {
 			p.Ctx.ResponseWriter.WriteHeader(500)
 		}
@@ -141,7 +143,7 @@ func (p *PersonController) GetPersonOfTeam() {
 			p.Ctx.ResponseWriter.WriteHeader(403)
 			return
 		}
-		result, err := sv.GetItemsPagination(0, int32(limitInt))
+		result, err := sv.GetPersonOfTeamPagination(teamID, 0, int32(limitInt))
 		if err != nil {
 			p.Ctx.ResponseWriter.WriteHeader(500)
 		}
@@ -158,7 +160,7 @@ func (p *PersonController) GetPersonOfTeam() {
 			p.Ctx.ResponseWriter.WriteHeader(403)
 			return
 		}
-		result, err := sv.GetPersonOfTeamPagination(int32(offInt), int32(limitInt))
+		result, err := sv.GetPersonOfTeamPagination(teamID, int32(offInt), int32(limitInt))
 		if err != nil {
 			p.Ctx.ResponseWriter.WriteHeader(500)
 			return

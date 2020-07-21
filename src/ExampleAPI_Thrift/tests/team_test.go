@@ -49,7 +49,7 @@ func TestGetTeams(t *testing.T) {
 
 // test get team by teamid
 func TestGetTeamById(t *testing.T) {
-	req, err := http.NewRequest("GET", "/v1/team/t-12", nil)
+	req, err := http.NewRequest("GET", "/v1/team/t-2", nil)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -57,9 +57,6 @@ func TestGetTeamById(t *testing.T) {
 	beego.BeeApp.Handlers.ServeHTTP(w, req)
 
 	log.Trace("testing", "TestTeam", "Code[%d]\n%s", w.Code, w.Body.String())
-
-	var response myGeneric.TTeamResult_
-	json.Unmarshal(w.Body.Bytes(), &response)
 
 	Convey("Subject: Test Team Endpoint\n", t, func() {
 		Convey("Status Code Should Be 200", func() {
@@ -74,7 +71,7 @@ func TestGetTeamById(t *testing.T) {
 
 // test create new team
 func TestCreateTeam(t *testing.T) {
-	var jsonStr = []byte(`{"teamId":"t-2","teamName":"Mobile","teamAddress":"HN"}`)
+	var jsonStr = []byte(`{"teamId":"t-4","teamName":"Mobile","teamAddress":"HN"}`)
 
 	req, err := http.NewRequest("POST", "/v1/team", bytes.NewBuffer(jsonStr))
 	if err != nil {
@@ -141,7 +138,7 @@ func TestGetPersonIsTeam(t *testing.T) {
 // test delete a team
 func TestDeleteTeam(t *testing.T) {
 
-	req, err := http.NewRequest("DELETE", "/v1/team/t-2", nil)
+	req, err := http.NewRequest("DELETE", "/v1/team/t-4", nil)
 	if err != nil {
 		t.Fatal(err)
 	}

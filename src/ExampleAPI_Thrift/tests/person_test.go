@@ -48,8 +48,8 @@ func TestGetPersons(t *testing.T) {
 }
 
 //test get persons pagination
-func TestGetPersonsPagination(t *testing.T) {
-	req, err := http.NewRequest("GET", "/v1/person?offset=0&limit=10", nil)
+func TestPagination(t *testing.T) {
+	req, err := http.NewRequest("GET", "/v1/person?offset=0&limit=2", nil)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -96,7 +96,7 @@ func TestGetPersonById(t *testing.T) {
 
 // test create new person
 func TestCreatePerson(t *testing.T) {
-	var jsonStr = []byte(`{"personId":"p-4","personName":"Truong2","birthDate":"15-04-1998","personAddress":"HN2","teamId":"t-2"}`)
+	var jsonStr = []byte(`{"personId":"p-12","personName":"Truong2","birthDate":"15-04-1998","personAddress":"HN2", "teamId":"t-4"}`)
 
 	req, err := http.NewRequest("POST", "/v1/person", bytes.NewBuffer(jsonStr))
 	if err != nil {
@@ -117,9 +117,9 @@ func TestCreatePerson(t *testing.T) {
 
 // test update a person
 func TestPutPerson(t *testing.T) {
-	var jsonStr = []byte(`{"personId":"p-2","personName":"Truong_Put","birthDate":"15-04-1998","personAddress":"HN2", "teamId":"2"}`)
+	var jsonStr = []byte(`{"personId":"p-4","personName":"Truong_Put","birthDate":"15-04-1998","personAddress":"HN2", "teamId":"t-4"}`)
 
-	req, err := http.NewRequest("PUT", "/v1/person/p-2", bytes.NewBuffer(jsonStr))
+	req, err := http.NewRequest("PUT", "/v1/person/p-4", bytes.NewBuffer(jsonStr))
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -138,31 +138,7 @@ func TestPutPerson(t *testing.T) {
 
 // test get a list of person of the team
 func TestGetPersonOfTeam(t *testing.T) {
-	req, err := http.NewRequest("GET", "/v1/person/team/t-2", nil)
-	if err != nil {
-		t.Fatal(err)
-	}
-	w := httptest.NewRecorder()
-	beego.BeeApp.Handlers.ServeHTTP(w, req)
-
-	log.Trace("testing", "TestPerson", "Code[%d]\n%s", w.Code, w.Body.String())
-
-	var response myGeneric.TPeronSetResult_
-	_ = json.Unmarshal(w.Body.Bytes(), &response)
-
-	Convey("Subject: Test Person Endpoint\n", t, func() {
-		Convey("Status Code Should Be 200", func() {
-			So(w.Code, ShouldEqual, 200)
-		})
-		Convey("The Result Should Not Be Empty", func() {
-			So(w.Body.Len(), ShouldBeGreaterThan, 0)
-		})
-
-	})
-}
-
-func TestGetPersonsOfTeamPagination(t *testing.T) {
-	req, err := http.NewRequest("GET", "/v1/person/team/t-2?offset=0&limit=10", nil)
+	req, err := http.NewRequest("GET", "/v1/person/team/t-4", nil)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -204,27 +180,3 @@ func TestDeletePerson(t *testing.T) {
 
 	})
 }
-
-// // test add team for person
-// func TestPostPersonIsTeam(t *testing.T) {
-
-// 	form := url.Values{}
-// 	form.Set("teamId", "t-12")
-// 	req, err := http.NewRequest("POST", "/v1/person/p-4/team", nil)
-// 	if err != nil {
-// 		t.Fatal(err)
-// 	}
-// 	req.PostForm = form
-// 	req.Header.Set("Content-Type", "multipart/form-data")
-// 	w := httptest.NewRecorder()
-// 	beego.BeeApp.Handlers.ServeHTTP(w, req)
-
-// 	log.Trace("testing", "TestPerson", "Code[%d]\n%s", w.Code, w.Body.String())
-
-// 	Convey("Subject: Test Person Endpoint\n", t, func() {
-// 		Convey("Status Code Should Be 201", func() {
-// 			So(w.Code, ShouldEqual, 201)
-// 		})
-
-// 	})
-// }

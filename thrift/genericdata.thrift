@@ -63,7 +63,7 @@ service TGenericService {
 
     TTeamSetResult getTeamsPagination(1: string bsKey, 2: i32 offset, 3: i32 limit)
 
-    TTeamResult getPersonIsTeam(1: string personId),
+    TTeamResult getPersonIsTeam(1: string personId)
 
     void putItemPerson(1: string bsKey, 2: TPerson item),
 

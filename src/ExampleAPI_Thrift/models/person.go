@@ -3,7 +3,6 @@ package models
 import (
 	"ExampleAPI_Bigset_Thrift/thrift/gen-go/myGeneric"
 	"context"
-	"fmt"
 	"log"
 	"time"
 
@@ -109,7 +108,7 @@ func (p *PersonClient) GetPersonsOfTeam(teamId string) (*myGeneric.TPeronSetResu
 	return result, nil
 }
 
-func (p *PersonClient) GetPersonOfTeamPagination(offset int32, limit int32) (*myGeneric.TPeronSetResult_, error) {
+func (p *PersonClient) GetPersonOfTeamPagination(teamId string, offset int32, limit int32) (*myGeneric.TPeronSetResult_, error) {
 
 	p.InitSocket()
 	defer p.Transport.Close()
@@ -118,7 +117,7 @@ func (p *PersonClient) GetPersonOfTeamPagination(offset int32, limit int32) (*my
 
 	client := myGeneric.NewTGenericServiceClientFactory(p.Transport, p.ProtocolFactory)
 
-	result, err := client.GetPersonsOfTeamPagination(ctx, BS_PERSON, offset, limit)
+	result, err := client.GetPersonsOfTeamPagination(ctx, teamId, offset, limit)
 	if err != nil {
 
 		return nil, err
@@ -144,140 +143,39 @@ func (p *PersonClient) GetItemById(id string) (*myGeneric.TPersonResult_, error)
 func (p *PersonClient) PutItem(item *myGeneric.TPerson) error {
 
 	p.InitSocket()
-	defer p.Transport.Close()
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
+	defer p.Transport.Close()
 
 	client := myGeneric.NewTGenericServiceClientFactory(p.Transport, p.ProtocolFactory)
 
-	_, err := client.GetItemTeam(ctx, BS_TEAM, item.GetTeamId())
-	if err != nil {
-		return err
+	if item.GetTeamId() != "" {
+		_, err := client.GetItemTeam(ctx, BS_TEAM, item.GetTeamId())
+		if err != nil {
+			return err
+		} else {
+			ok, err := client.ItemIsExist(ctx, BS_TEAM, item.GetTeamId())
+			if err != nil || !ok {
+				return err
+			}
+			err = client.PutItemPerson(ctx, BS_PERSON, item)
+			if err != nil {
+				return err
+			}
+			err = client.PutPersonToTeam(ctx, item.GetTeamId(), item.GetPersonId())
+			if err != nil {
+				return err
+			}
+			return nil
+		}
 	} else {
 		err := client.PutItemPerson(ctx, BS_PERSON, item)
 		if err != nil {
 			return err
 		}
+		return nil
 	}
-
-	return nil
 }
-
-// func (p *PersonClient) PutPersonIsTeam(personId string, teamId string) error {
-
-// 	p.InitSocket()
-// 	defer p.Transport.Close()
-// 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
-// 	defer cancel()
-
-// 	client := myGeneric.NewTGenericServiceClientFactory(p.Transport, p.ProtocolFactory)
-
-// 	//check team exist in bigset
-// 	ok, err := client.ItemIsExist(ctx, BS_TEAM, teamId)
-// 	if err != nil {
-//
-// 		return err
-// 	}
-// 	if ok {
-// 		// check person exist
-// 		ok2, err := client.ItemIsExist(ctx, BS_PERSON, personId)
-// 		if err != nil {
-//
-// 			return err
-// 		}
-// 		if ok2 {
-// 			// thêm / cập nhật team cho person
-// 			err := client.PutPersonIsTeam(ctx, personId, teamId)
-// 			if err != nil {
-//
-// 				return err
-// 			}
-// 			// thêm / cập nhật person vào team
-// 			err = client.PutPersonToTeam(ctx, teamId, personId)
-// 			if err != nil {
-//
-// 				return err
-// 			}
-// 			return nil
-// 		}
-// 		return fmt.Errorf("person is not exist")
-// 	}
-// 	return fmt.Errorf("team is not exist")
-// }
-
-func (p *PersonClient) PutPersonToTeam(personId string, teamId string) error {
-
-	p.InitSocket()
-	defer p.Transport.Close()
-	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
-	defer cancel()
-
-	client := myGeneric.NewTGenericServiceClientFactory(p.Transport, p.ProtocolFactory)
-
-	//check team exist in bigset
-	ok, err := client.ItemIsExist(ctx, BS_TEAM, teamId)
-	if err != nil || !ok {
-		return err
-	}
-	if ok {
-		// check person exist in bigset
-		ok2, err := client.ItemIsExist(ctx, BS_PERSON, personId)
-		if err != nil {
-			return err
-		}
-		if ok2 {
-			// thêm person vào team
-			err := client.PutPersonToTeam(ctx, teamId, personId)
-			if err != nil {
-
-				return err
-			}
-			return nil
-		}
-		return fmt.Errorf("person is not exist")
-	}
-	return fmt.Errorf("team is not exist")
-}
-
-// func (p *PersonClient) PutMultiPersonsToTeam(personIds []string, teamId string) error {
-
-// 	p.InitSocket()
-// 	defer p.Transport.Close()
-// 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
-// 	defer cancel()
-
-// 	client := myGeneric.NewTGenericServiceClientFactory(p.Transport, p.ProtocolFactory)
-
-// 	//check team exist in bigset
-// 	ok, err := client.ItemIsExist(ctx, BS_TEAM, teamId)
-// 	if err != nil {
-//
-// 		return err
-// 	}
-// 	if ok {
-// 		for _, v := range personIds {
-// 			ok2, err := client.ItemIsExist(ctx, BS_PERSON, v)
-// 			if err != nil || !ok2 {
-//
-// 				return err
-// 			}
-// 			if ok2 {
-// 				err := client.PutPersonToTeam(ctx, teamId, v)
-// 				if err != nil {
-//
-// 					return err
-// 				}
-// 				err = client.PutPersonIsTeam(ctx, v, teamId)
-// 				if err != nil {
-//
-// 					return err
-// 				}
-// 			}
-// 		}
-// 		return nil
-// 	}
-// 	return fmt.Errorf("%s", "team is not exist")
-// }
 
 func (p *PersonClient) RemoveItem(personId string) error {
 

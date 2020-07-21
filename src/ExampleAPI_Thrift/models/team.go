@@ -132,6 +132,9 @@ func (t *TeamClient) RemoveItem(teamId string) error {
 		temp.PersonName = &name
 		temp.BirthDate = &date
 		temp.TeamId = nil
+
+		//update teamId of person
+		_ = client.PutItemPerson(ctx, BS_PERSON, temp)
 		// remove node teamID(bsKey: teamID)
 		_ = client.RemoveItem(ctx, teamId, v.GetPersonId())
 	}
